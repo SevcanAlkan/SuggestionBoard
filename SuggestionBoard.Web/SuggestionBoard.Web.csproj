@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
+    <UserSecretsId>d4cd6c50-205b-413f-9aaf-29dcf1ff96d3</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.8" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SuggestionBoard.Core\SuggestionBoard.Core.csproj" />
+    <ProjectReference Include="..\SuggestionBoard.Data\SuggestionBoard.Data.csproj" />
+    <ProjectReference Include="..\SuggestionBoard.Domain\SuggestionBoard.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
