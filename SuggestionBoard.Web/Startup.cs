@@ -1,13 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SuggestionBoard.Data;
+using SuggestionBoard.Web.Helper;
 
 namespace SuggestionBoard.Web
 {
@@ -24,6 +28,15 @@ namespace SuggestionBoard.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+
+            #region Dependency Injection
+
+            //services.AddSingleton(mapper);
+            services.AddDbContext<SuggestionBoardDbContext>(db =>
+                db.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")
+                                .Replace("{HostMachineIpAddress}", GetHostMachineIP.Get())));
+
+            #endregion
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
