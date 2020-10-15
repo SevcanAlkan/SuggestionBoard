@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -11,6 +12,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SuggestionBoard.Data;
+using SuggestionBoard.Data.Service;
+using SuggestionBoard.Data.SubStructure;
 using SuggestionBoard.Web.Helper;
 
 namespace SuggestionBoard.Web
@@ -29,12 +32,30 @@ namespace SuggestionBoard.Web
         {
             services.AddControllersWithViews();
 
+            #region AutoMapper Configuration
+
+            var mapperConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new MappingProfile());
+            });
+
+            IMapper mapper = mapperConfig.CreateMapper();
+
+            #endregion
+
             #region Dependency Injection
 
-            //services.AddSingleton(mapper);
+            services.AddSingleton(mapper);
             services.AddDbContext<SuggestionBoardDbContext>(db =>
                 db.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")
                                 .Replace("{HostMachineIpAddress}", GetHostMachineIP.Get())));
+            services.AddTransient<UnitOfWork>();
+            services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
+
+            services.AddTransient<ISuggestionService, SuggestionService>();
+            services.AddTransient<ISuggestionReactionService, SuggestionReactionService>();
+            services.AddTransient<ISuggestionCommentService, SuggestionCommentService>();
+            services.AddTransient(typeof(IBaseService<,,,>), typeof(BaseService<,,,>));
 
             #endregion
         }
