@@ -20,44 +20,27 @@ namespace SuggestionBoard.Data.ViewModel
         public int TotalReaction { get; set; }
     }
 
-    public class SuggestionDetailVM : BaseVM
+    public class SuggestionSaveVM : SaveVM
     {
+        [DataType(DataType.Text)]
+        [Required, MinLengthErrorMessage(5), MaxLengthErrorMessage(250)]
         public string Title { get; set; }
+        [DataType(DataType.MultilineText)]
+        [Required, MinLengthErrorMessage(5), MaxLengthErrorMessage(2000)]
         public string Description { get; set; }
+        [Required, DefaultValue(SuggestionStatus.Created)]
         public SuggestionStatus Status { get; set; }
+        [Range(0, int.MaxValue), DefaultValue(0)]
         public int LikeAmount { get; set; }
+        [Range(0, int.MaxValue), DefaultValue(0)]
         public int DislikeAmount { get; set; }
-        public int TotalReaction { get; set; }
+        public int TotalReaction { 
+            get {
+                return DislikeAmount + LikeAmount;
+            } 
+        }
 
         public List<SuggestionCommentVM> suggestionComments { get; set; }
         public List<SuggestionReactionVM> suggestionReactions { get; set; }
-    }
-
-    public class SuggestionAddVM : AddVM
-    {
-        [Required, MinLengthErrorMessage(5), MaxLengthErrorMessage(250)]
-        public string Title { get; set; }
-        [Required, MinLengthErrorMessage(5), MaxLengthErrorMessage(2000)]
-        public string Description { get; set; }
-        [Required, DefaultValue(SuggestionStatus.Created)]
-        public SuggestionStatus Status { get; set; }
-        [Range(0, int.MaxValue), DefaultValue(0)]
-        public int LikeAmount { get; set; }
-        [Range(0, int.MaxValue), DefaultValue(0)]
-        public int DislikeAmount { get; set; }
-    }
-
-    public class SuggestionUpdateVM : UpdateVM
-    {
-        [Required, MinLengthErrorMessage(5), MaxLengthErrorMessage(250)]
-        public string Title { get; set; }
-        [Required, MinLengthErrorMessage(5), MaxLengthErrorMessage(2000)]
-        public string Description { get; set; }
-        [Required, DefaultValue(SuggestionStatus.Created)]
-        public SuggestionStatus Status { get; set; }
-        [Range(0, int.MaxValue), DefaultValue(0)]
-        public int LikeAmount { get; set; }
-        [Range(0, int.MaxValue), DefaultValue(0)]
-        public int DislikeAmount { get; set; }
     }
 }

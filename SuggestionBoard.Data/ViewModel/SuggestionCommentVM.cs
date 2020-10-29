@@ -12,15 +12,7 @@ namespace SuggestionBoard.Data.ViewModel
         public string Text { get; set; }
     }
 
-    public class SuggestionCommentAddVM : AddVM
-    {
-        [GuidValidation]
-        public Guid SuggestionId { get; set; }
-        [Required, MinLengthErrorMessage(5), MaxLengthErrorMessage(500)]
-        public string Text { get; set; }
-    }
-
-    public class SuggestionCommentUpdateVM : UpdateVM
+    public class SuggestionCommentSaveVM : SaveVM
     {
         [GuidValidation]
         public Guid SuggestionId { get; set; }

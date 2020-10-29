@@ -9,40 +9,34 @@ using SuggestionBoard.Core.Validation;
 using SuggestionBoard.Core.Helper;
 using SuggestionBoard.Core.EntityFramework;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace SuggestionBoard.Data.SubStructure
 {
-    public interface ICRUDService<A, U, G>
-       where A : AddVM, IAddVM, new()
-       where U : UpdateVM, IUpdateVM, new()
-       where G : BaseVM, IBaseVM, new()
+    public interface IBaseService<S, L, D>
+        where S : SaveVM, ISaveVM, new()
+        where L : BaseVM, IBaseVM, new()
+        where D : BaseEntity, IBaseEntity, new()
     {
-        Task<G> GetByIdAsync(Guid id);
-        IList<G> GetAll();
+        //IRepository<D> Repository { get; }
 
-        Task<APIResultVM> Add(A model, Guid? userId = null, bool isCommit = true);
-        Task<APIResultVM> Update(Guid id, U model, Guid? userId = null, bool isCommit = true);
-        Task<APIResultVM> Delete(Guid id, Guid? userId = null, bool isCommit = true);
-        Task<APIResultVM> ReverseDelete(Guid id, Guid? userId, bool isCommit = true);
-        G GetById(Guid id);
-        Task<APIResultVM> Commit();
+        Task<bool> AnyAsync(Guid id);
+        Task<L> GetByIdAsync(Guid id);
+        Task<IEnumerable<L>> GetAllAsync();
+        Task<IList<L>> GetAllAsync(Expression<Func<D, bool>> expr);
+        Task<APIResultVM> AddAsync(S model, Guid? userId = null, bool isCommit = true);
+        Task<APIResultVM> UpdateAsync(Guid id, S model, Guid? userId = null, bool isCommit = true);
+        Task<APIResultVM> DeleteAsync(Guid id, Guid? userId = null, bool isCommit = true);
+        Task<APIResultVM> ReverseDeleteAsync(Guid id, Guid? userId, bool isCommit = true);
+        Task<APIResultVM> CommitAsync();
     }
 
-    public interface IBaseService<A, U, G, D> : ICRUDService<A, U, G>
-        where A : AddVM, IAddVM, new()
-        where D : BaseEntity, IBaseEntity, new()
-        where U : UpdateVM, IUpdateVM, new()
-        where G : BaseVM, IBaseVM, new()
-    {
-        IRepository<D> Repository { get; }
-        IList<G> GetAll(Expression<Func<D, bool>> expr);
-    }
+    //TODO: remove add and update VMs, the DetailVM will be used
 
-    public class BaseService<A, U, G, D> : IBaseService<A, U, G, D>
-        where A : AddVM, IAddVM, new()
+    public class BaseService<S, L, D> : IBaseService<S, L, D>
+        where S : SaveVM, ISaveVM, new()
+        where L : BaseVM, IBaseVM, new()
         where D : BaseEntity, IBaseEntity, new()
-        where U : UpdateVM, IUpdateVM, new()
-        where G : BaseVM, IBaseVM, new()
     {
         protected UnitOfWork uow;
         protected readonly IMapper mapper;
@@ -53,7 +47,7 @@ namespace SuggestionBoard.Data.SubStructure
             mapper = _mapper;
         }
 
-        public IRepository<D> Repository
+        protected IRepository<D> Repository
         {
             get
             {
@@ -61,14 +55,29 @@ namespace SuggestionBoard.Data.SubStructure
             }
         }
 
-        public virtual async Task<G> GetByIdAsync(Guid id)
+        public virtual async Task<bool> AnyAsync(Guid id)
+        {
+            try
+            {
+                if (id.IsNull())
+                    return false;
+
+                return await uow.Repository<D>().AnyAysnc(a => a.Id == id);
+            }
+            catch (Exception e)
+            {
+                APIResult.CreateVMWithError(e);
+                return false;
+            }
+        }
+        public virtual async Task<L> GetByIdAsync(Guid id)
         {
             try
             {
                 if (id.IsNull())
                     return null;
 
-                return mapper.Map<G>(await uow.Repository<D>().GetByID(id));
+                return mapper.Map<L>(await uow.Repository<D>().GetByID(id));
             }
             catch (Exception e)
             {
@@ -76,17 +85,11 @@ namespace SuggestionBoard.Data.SubStructure
                 return null;
             }
         }
-        public virtual G GetById(Guid id)
+        public virtual async Task<IEnumerable<L>> GetAllAsync()
         {
             try
             {
-                D dm = Repository.Query().Where(x => x.Id == id).FirstOrDefault();
-                if (dm.IsNull())
-                    return null;
-
-                G vm = mapper.Map<D, G>(dm);
-
-                return vm;
+                return await mapper.ProjectTo<L>(Repository.Query()).ToListAsync();
             }
             catch (Exception e)
             {
@@ -94,23 +97,11 @@ namespace SuggestionBoard.Data.SubStructure
                 return null;
             }
         }
-        public virtual IList<G> GetAll()
+        public virtual async Task<IList<L>> GetAllAsync(Expression<Func<D, bool>> expr)
         {
             try
             {
-                return mapper.ProjectTo<G>(Repository.Query()).ToList();
-            }
-            catch (Exception e)
-            {
-                APIResult.CreateVMWithError(e);
-                return null;
-            }
-        }
-        public virtual IList<G> GetAll(Expression<Func<D, bool>> expr)
-        {
-            try
-            {
-                return mapper.ProjectTo<G>(Repository.Query().Where(expr)).ToList();
+                return await mapper.ProjectTo<L>(Repository.Query().Where(expr)).ToListAsync();
             }
             catch (Exception e)
             {
@@ -119,13 +110,13 @@ namespace SuggestionBoard.Data.SubStructure
             }
         }
 
-        public virtual async Task<APIResultVM> Add(A model, Guid? userId = null, bool isCommit = true)
+        public virtual async Task<APIResultVM> AddAsync(S model, Guid? userId = null, bool isCommit = true)
         {
             try
             {
                 Guid _userId = userId == null ? Guid.Empty : userId.Value;
 
-                D entity = mapper.Map<A, D>(model);
+                D entity = mapper.Map<S, D>(model);
                 if (entity.Id == null || entity.Id == Guid.Empty)
                     entity.Id = Guid.NewGuid();
 
@@ -138,7 +129,7 @@ namespace SuggestionBoard.Data.SubStructure
                 Repository.Add(entity);
 
                 if (isCommit)
-                    await Commit();
+                    await CommitAsync();
 
                 return APIResult.CreateVMWithRec(entity, true, entity.Id);
             }
@@ -147,7 +138,7 @@ namespace SuggestionBoard.Data.SubStructure
                 return APIResult.CreateVMWithError(e);
             }
         }
-        public virtual async Task<APIResultVM> Update(Guid id, U model, Guid? userId = null, bool isCommit = true)
+        public virtual async Task<APIResultVM> UpdateAsync(Guid id, S model, Guid? userId = null, bool isCommit = true)
         {
             try
             {
@@ -157,7 +148,7 @@ namespace SuggestionBoard.Data.SubStructure
                 if (entity.IsNull())
                     return APIResult.CreateVM(false, id);
 
-                entity = mapper.Map<U, D>(model, entity);
+                entity = mapper.Map<S, D>(model, entity);
 
                 if (entity is ITableEntity)
                 {
@@ -168,7 +159,7 @@ namespace SuggestionBoard.Data.SubStructure
                 Repository.Update(entity);
 
                 if (isCommit)
-                    await Commit();
+                    await CommitAsync();
 
                 return APIResult.CreateVMWithRec(entity, true, entity.Id);
             }
@@ -177,7 +168,7 @@ namespace SuggestionBoard.Data.SubStructure
                 return APIResult.CreateVMWithError(e);
             }
         }
-        public virtual async Task<APIResultVM> Delete(Guid id, Guid? userId = null, bool isCommit = true)
+        public virtual async Task<APIResultVM> DeleteAsync(Guid id, Guid? userId = null, bool isCommit = true)
         {
             try
             {
@@ -197,7 +188,7 @@ namespace SuggestionBoard.Data.SubStructure
                 Repository.Update(entity);
 
                 if (isCommit)
-                    await Commit();
+                    await CommitAsync();
 
                 return APIResult.CreateVMWithRec(entity, true, entity.Id);
             }
@@ -206,7 +197,7 @@ namespace SuggestionBoard.Data.SubStructure
                 return APIResult.CreateVMWithError(e);
             }
         }
-        public virtual async Task<APIResultVM> ReverseDelete(Guid id, Guid? userId, bool isCommit = true)
+        public virtual async Task<APIResultVM> ReverseDeleteAsync(Guid id, Guid? userId, bool isCommit = true)
         {
             try
             {
@@ -226,7 +217,7 @@ namespace SuggestionBoard.Data.SubStructure
                 Repository.Update(entity);
 
                 if (isCommit)
-                    await Commit();
+                    await CommitAsync();
 
                 return APIResult.CreateVMWithRec(entity, true, entity.Id);
             }
@@ -236,7 +227,7 @@ namespace SuggestionBoard.Data.SubStructure
             }
         }
 
-        public virtual async Task<APIResultVM> Commit()
+        public virtual async Task<APIResultVM> CommitAsync()
         {
             try
             {

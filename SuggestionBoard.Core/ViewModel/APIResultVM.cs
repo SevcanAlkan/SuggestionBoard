@@ -7,7 +7,7 @@ namespace SuggestionBoard.Core.ViewModel
 {
     public interface IIsResultVM
     {
-        bool Result { get; set; }
+        bool IsSuccessful { get; set; }
     }
 
     public class APIResultVM : IIsResultVM
@@ -15,7 +15,7 @@ namespace SuggestionBoard.Core.ViewModel
         public Guid? RecId { get; set; }
 
         public object Rec { get; set; }
-        public bool Result { get; set; }
+        public bool IsSuccessful { get; set; }
         [JsonIgnore]
         public List<APIErrorVM> Errors { get; set; }
     }

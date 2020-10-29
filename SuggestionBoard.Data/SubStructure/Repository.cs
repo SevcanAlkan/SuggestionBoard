@@ -3,6 +3,7 @@ using SuggestionBoard.Core.EntityFramework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -15,6 +16,7 @@ namespace SuggestionBoard.Data.SubStructure
         IQueryable<T> Query(bool isDeleted = false);
         void Add(T entity);
         void Update(T entity);
+        Task<bool> AnyAysnc(Expression<Func<T, bool>> expr);
     }
 
     public class Repository<T> : IRepository<T>
@@ -49,7 +51,11 @@ namespace SuggestionBoard.Data.SubStructure
         }
         public IQueryable<T> Query(bool isDeleted = false)
         {
-            return con.Set<T>().AsNoTracking().Where(x => !x.IsDeleted || x.IsDeleted == isDeleted);
+            return con.Set<T>().AsNoTracking().Where(x => !x.IsDeleted || x.IsDeleted == isDeleted).AsQueryable();
+        }
+        public Task<bool> AnyAysnc(Expression<Func<T, bool>> expr)
+        {
+            return con.Set<T>().AsNoTracking().AnyAsync(expr);
         }
     }
 }

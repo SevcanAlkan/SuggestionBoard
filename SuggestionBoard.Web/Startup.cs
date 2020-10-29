@@ -55,7 +55,7 @@ namespace SuggestionBoard.Web
             services.AddTransient<ISuggestionService, SuggestionService>();
             services.AddTransient<ISuggestionReactionService, SuggestionReactionService>();
             services.AddTransient<ISuggestionCommentService, SuggestionCommentService>();
-            services.AddTransient(typeof(IBaseService<,,,>), typeof(BaseService<,,,>));
+            services.AddTransient(typeof(IBaseService<,,>), typeof(BaseService<,,>));
 
             #endregion
         }

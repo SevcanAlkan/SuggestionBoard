@@ -5,24 +5,35 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SuggestionBoard.Core.Validation;
+using SuggestionBoard.Data.Service;
+using SuggestionBoard.Data.ViewModel;
 using SuggestionBoard.Web.Models;
 
 namespace SuggestionBoard.Web.Controllers
 {
     public class HomeController : Controller
     {
+        private ISuggestionService _service;
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ISuggestionService service)
         {
+            _service = service;
             _logger = logger;
         }
 
-        public IActionResult Index()
+        [HttpGet]
+        public async Task<ActionResult<IAsyncEnumerable<SuggestionVM>>> Index()
         {
-            return View();
-        }
+            var result = await _service.GetAllAsync();
+            //sadece gecerli olanlari cek ve sirala
 
+            //order by ekle : date old/newest ve reaction
+
+            return View(result);
+        }
+        
         public IActionResult Privacy()
         {
             return View();
