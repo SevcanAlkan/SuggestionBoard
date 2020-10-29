@@ -8,10 +8,7 @@ using System.Text;
 
 namespace SuggestionBoard.Data.Service
 {
-    public class SuggestionService : BaseService<SuggestionAddVM,
-    SuggestionUpdateVM,
-    SuggestionVM,
-    Suggestion>,
+    public class SuggestionService : BaseService<SuggestionSaveVM, SuggestionVM, Suggestion>,
     ISuggestionService
     {
         #region Ctor
@@ -30,7 +27,7 @@ namespace SuggestionBoard.Data.Service
         #endregion
     }
 
-    public interface ISuggestionService : IBaseService<SuggestionAddVM, SuggestionUpdateVM, SuggestionVM, Suggestion>
+    public interface ISuggestionService : IBaseService<SuggestionSaveVM, SuggestionVM, Suggestion>
     {
     }
 }

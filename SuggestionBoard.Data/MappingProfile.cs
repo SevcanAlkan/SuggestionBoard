@@ -12,22 +12,13 @@ namespace SuggestionBoard.Data
         public MappingProfile()
         {
             CreateMap<Suggestion, SuggestionVM>().ReverseMap();
-            CreateMap<Suggestion, SuggestionAddVM>();
-            CreateMap<SuggestionAddVM, Suggestion>();
-            CreateMap<Suggestion, SuggestionUpdateVM>();
-            CreateMap<SuggestionUpdateVM, Suggestion>();
+            CreateMap<Suggestion, SuggestionSaveVM>().ReverseMap();
 
             CreateMap<SuggestionComment, SuggestionCommentVM>().ReverseMap();
-            CreateMap<SuggestionComment, SuggestionCommentAddVM>();
-            CreateMap<SuggestionCommentAddVM, SuggestionComment>();
-            CreateMap<SuggestionComment, SuggestionCommentUpdateVM>();
-            CreateMap<SuggestionCommentUpdateVM, SuggestionComment>();
+            CreateMap<SuggestionComment, SuggestionCommentSaveVM>().ReverseMap();
 
             CreateMap<SuggestionReaction, SuggestionReactionVM>().ReverseMap();
-            CreateMap<SuggestionReaction, SuggestionReactionAddVM>();
-            CreateMap<SuggestionReactionAddVM, SuggestionReaction>();
-            CreateMap<SuggestionReaction, SuggestionReactionUpdateVM>();
-            CreateMap<SuggestionReactionUpdateVM, SuggestionReaction>();
+            CreateMap<SuggestionReaction, SuggestionReactionSaveVM>().ReverseMap();
         }
     }
 }

@@ -12,7 +12,7 @@ namespace SuggestionBoard.Core.Helper
         {
             var vm = new APIResultVM()
             {
-                Result = isSuccessful,
+                IsSuccessful = isSuccessful,
                 RecId = recId
             };
             return vm;
@@ -22,7 +22,7 @@ namespace SuggestionBoard.Core.Helper
         {
             var vm = new APIResultVM()
             {
-                Result = isSuccessful,
+                IsSuccessful = isSuccessful,
                 RecId = recId,
                 Rec = rec
             };
@@ -35,7 +35,7 @@ namespace SuggestionBoard.Core.Helper
             if (vm == null)
                 vm = new APIResultVM()
                 {
-                    Result = false,
+                    IsSuccessful = false,
                     RecId = null
                 };
 

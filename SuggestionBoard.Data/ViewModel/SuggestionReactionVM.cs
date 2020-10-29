@@ -13,15 +13,7 @@ namespace SuggestionBoard.Data.ViewModel
         public UserReaction Reaction { get; set; }
     }
 
-    public class SuggestionReactionAddVM : AddVM
-    {
-        [GuidValidation]
-        public Guid SuggestionId { get; set; }
-        [Required]
-        public UserReaction Reaction { get; set; }
-    }
-
-    public class SuggestionReactionUpdateVM : UpdateVM
+    public class SuggestionReactionSaveVM : SaveVM
     {
         [GuidValidation]
         public Guid SuggestionId { get; set; }
