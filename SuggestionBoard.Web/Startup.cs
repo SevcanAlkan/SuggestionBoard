@@ -15,6 +15,7 @@ using SuggestionBoard.Data;
 using SuggestionBoard.Data.Service;
 using SuggestionBoard.Data.SubStructure;
 using SuggestionBoard.Web.Helper;
+using SuggestionBoard.Domain;
 
 namespace SuggestionBoard.Web
 {
@@ -30,7 +31,20 @@ namespace SuggestionBoard.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            #region MVC Configuration
+
             services.AddControllersWithViews();
+
+            #endregion
+
+            #region .Net Identity
+
+            services.AddIdentity<User, Role>(config =>
+            {
+                
+            }).AddEntityFrameworkStores<SuggestionBoardDbContext>();
+
+            #endregion
 
             #region AutoMapper Configuration
 
@@ -82,6 +96,9 @@ namespace SuggestionBoard.Web
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseRouting();
 

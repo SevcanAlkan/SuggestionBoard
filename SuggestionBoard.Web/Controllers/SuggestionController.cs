@@ -45,7 +45,7 @@ namespace SuggestionBoard.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Detail(Guid id, [Bind("Id, Title, Description")] SuggestionSaveVM record)
+        public async Task<ActionResult> Detail(Guid id, SuggestionSaveVM record) //[Bind("Id, Title, Description")]
         {
             if (id != record.Id)
             {
