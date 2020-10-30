@@ -26,6 +26,8 @@ namespace SuggestionBoard.Web.Controllers
         [HttpGet]
         public async Task<ActionResult<IAsyncEnumerable<SuggestionVM>>> Index()
         {
+            _logger.LogInformation("Home page openned");
+
             var result = await _service.GetAllAsync();
             //sadece gecerli olanlari cek ve sirala
 

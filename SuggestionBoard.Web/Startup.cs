@@ -58,6 +58,13 @@ namespace SuggestionBoard.Web
             services.AddTransient(typeof(IBaseService<,,>), typeof(BaseService<,,>));
 
             #endregion
+
+            #region Logging 
+
+
+            #endregion
+
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -10,6 +10,7 @@ using SuggestionBoard.Core.Helper;
 using SuggestionBoard.Core.EntityFramework;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace SuggestionBoard.Data.SubStructure
 {
@@ -38,20 +39,22 @@ namespace SuggestionBoard.Data.SubStructure
         where L : BaseVM, IBaseVM, new()
         where D : BaseEntity, IBaseEntity, new()
     {
-        protected UnitOfWork uow;
-        protected readonly IMapper mapper;
+        protected UnitOfWork _uow;
+        protected readonly IMapper _mapper;
+        protected readonly ILogger<BaseService<S, L, D>> _logger;
 
-        public BaseService(UnitOfWork _uow, IMapper _mapper)
+        public BaseService(UnitOfWork uow, IMapper mapper, ILogger<BaseService<S, L, D>> logger)
         {
-            uow = _uow;
-            mapper = _mapper;
+            _uow = uow;
+            _mapper = mapper;
+            _logger = logger;
         }
 
         protected IRepository<D> Repository
         {
             get
             {
-                return uow.Repository<D>();
+                return _uow.Repository<D>();
             }
         }
 
@@ -62,7 +65,7 @@ namespace SuggestionBoard.Data.SubStructure
                 if (id.IsNull())
                     return false;
 
-                return await uow.Repository<D>().AnyAysnc(a => a.Id == id);
+                return await _uow.Repository<D>().AnyAysnc(a => a.Id == id);
             }
             catch (Exception e)
             {
@@ -77,7 +80,7 @@ namespace SuggestionBoard.Data.SubStructure
                 if (id.IsNull())
                     return null;
 
-                return mapper.Map<L>(await uow.Repository<D>().GetByID(id));
+                return _mapper.Map<L>(await _uow.Repository<D>().GetByID(id));
             }
             catch (Exception e)
             {
@@ -89,7 +92,7 @@ namespace SuggestionBoard.Data.SubStructure
         {
             try
             {
-                return await mapper.ProjectTo<L>(Repository.Query()).ToListAsync();
+                return await _mapper.ProjectTo<L>(Repository.Query()).ToListAsync();
             }
             catch (Exception e)
             {
@@ -101,7 +104,7 @@ namespace SuggestionBoard.Data.SubStructure
         {
             try
             {
-                return await mapper.ProjectTo<L>(Repository.Query().Where(expr)).ToListAsync();
+                return await _mapper.ProjectTo<L>(Repository.Query().Where(expr)).ToListAsync();
             }
             catch (Exception e)
             {
@@ -116,7 +119,7 @@ namespace SuggestionBoard.Data.SubStructure
             {
                 Guid _userId = userId == null ? Guid.Empty : userId.Value;
 
-                D entity = mapper.Map<S, D>(model);
+                D entity = _mapper.Map<S, D>(model);
                 if (entity.Id == null || entity.Id == Guid.Empty)
                     entity.Id = Guid.NewGuid();
 
@@ -144,11 +147,11 @@ namespace SuggestionBoard.Data.SubStructure
             {
                 Guid _userId = userId == null ? Guid.Empty : userId.Value;
 
-                D entity = await uow.Repository<D>().GetByID(id);
+                D entity = await _uow.Repository<D>().GetByID(id);
                 if (entity.IsNull())
                     return APIResult.CreateVM(false, id);
 
-                entity = mapper.Map<S, D>(model, entity);
+                entity = _mapper.Map<S, D>(model, entity);
 
                 if (entity is ITableEntity)
                 {
@@ -174,7 +177,7 @@ namespace SuggestionBoard.Data.SubStructure
             {
                 Guid _userId = userId == null ? Guid.Empty : userId.Value;
 
-                D entity = await uow.Repository<D>().GetByID(id);
+                D entity = await _uow.Repository<D>().GetByID(id);
                 if (entity.IsNull())
                     return APIResult.CreateVM(false, id);
 
@@ -203,7 +206,7 @@ namespace SuggestionBoard.Data.SubStructure
             {
                 Guid _userId = userId == null ? Guid.Empty : userId.Value;
 
-                D entity = await uow.Repository<D>().GetByID(id);
+                D entity = await _uow.Repository<D>().GetByID(id);
                 if (entity.IsNull())
                     return APIResult.CreateVM(false, id);
 
@@ -231,7 +234,7 @@ namespace SuggestionBoard.Data.SubStructure
         {
             try
             {
-                await uow.SaveChanges();
+                await _uow.SaveChanges();
 
                 return APIResult.CreateVM(true);
             }
