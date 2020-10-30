@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
 using SuggestionBoard.Data.SubStructure;
 using SuggestionBoard.Data.ViewModel;
 using SuggestionBoard.Domain;
@@ -13,8 +14,8 @@ namespace SuggestionBoard.Data.Service
     {
         #region Ctor
 
-        public SuggestionService(UnitOfWork _uow, IMapper _mapper)
-            : base(_uow, _mapper)
+        public SuggestionService(UnitOfWork uow, IMapper mapper, ILogger<SuggestionService> logger)
+            : base(uow, mapper, logger)
         {
 
         }
