@@ -9,7 +9,7 @@ namespace SuggestionBoard.Data.ViewModel
     public sealed class LoginVM
     {
         [Required(ErrorMessage = "E-Mail is required")]
-        [DataType(DataType.Text)]
+        [DataType(DataType.EmailAddress)]
         [Display(Name = "E-Mail Address")]
         [StringLength(100, MinimumLength = 5, ErrorMessage = "E-Mail address cannot be longer than 100 characters and less than 5 characters")]
         public string EMail { get; set; }

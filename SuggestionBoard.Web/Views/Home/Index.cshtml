@@ -12,28 +12,31 @@
 
         <div class="row">
             <div class="col">
-                <a id="btn-new-suggestion" class="btn btn-success btn-lg btn-block"                     
-                    asp-controller="Suggestion" asp-action="Detail">Send New Suggestion</a>
+                <a id="btn-new-suggestion" class="btn btn-success btn-lg btn-block"
+                   asp-controller="Suggestion" asp-action="Detail">Send New Suggestion</a>
             </div>
         </div>
 
         <div class="row">
             <div class="col">
-               @if(Model == null || !Model.Any()){ //If there is no record
+                @if (Model == null || !Model.Any())
+                { //If there is no record
                     <div class="jumbotron jumbotron-fluid">
                         <div class="container">
                             <h1 class="display-4">There is no any suggestion 😢</h1>
                             <p class="lead">But if you want you can send your suggestion! Then, people can see and react to your suggestion. 🌝</p>
                         </div>
                     </div>
-               } else {
-                   
-                   @foreach (var item in Model)
-                   {
-                       
-                   }
+                }
+                else
+                {
 
-               }
+                    @foreach (var item in Model)
+                    {
+
+                    }
+
+                }
             </div>
         </div>
 
