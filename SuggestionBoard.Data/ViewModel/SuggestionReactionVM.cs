@@ -8,12 +8,12 @@ using System.Text;
 
 namespace SuggestionBoard.Data.ViewModel
 {
-    public class SuggestionReactionVM : BaseVM
+    public sealed class SuggestionReactionVM : BaseVM
     {
         public UserReaction Reaction { get; set; }
     }
 
-    public class SuggestionReactionSaveVM : SaveVM
+    public sealed class SuggestionReactionSaveVM : SaveVM
     {
         [GuidValidation]
         public Guid SuggestionId { get; set; }

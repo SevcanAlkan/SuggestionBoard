@@ -19,7 +19,7 @@ namespace SuggestionBoard.Domain
 
         public User()
         {
-            
+
         }
     }
 }
