@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Logging;
 using SuggestionBoard.Core.Validation;
 using SuggestionBoard.Data.ViewModel;
 using SuggestionBoard.Domain;
@@ -18,10 +19,16 @@ namespace SuggestionBoard.Web.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
-        public AuthenticationController(UserManager<User> userManager, SignInManager<User> signInManager)
+
+        private readonly ILogger<AuthenticationController> _logger;
+
+        public AuthenticationController(UserManager<User> userManager,
+            SignInManager<User> signInManager,
+            ILogger<AuthenticationController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _logger = logger;
         }
 
         [HttpGet]
