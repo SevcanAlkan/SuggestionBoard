@@ -1,11 +1,14 @@
 ﻿@using SuggestionBoard.Data.ViewModel;
 @model SuggestionSaveVM;
 @{
-    bool isNewRecord = Model == null || Model.Id == null || Model.Id == Guid.Empty;    
+    bool isNewRecord = Model == null || Model.Id == null || Model.Id == Guid.Empty;
 
-    if(isNewRecord) {
+    if (isNewRecord)
+    {
         ViewData["Title"] = "New Suggestion";
-    } else {
+    }
+    else
+    {
         ViewData["Title"] = "Edit Suggestion";
     }
 }
@@ -14,9 +17,12 @@
 
 <hr />
 
-@if(isNewRecord) {
+@if (isNewRecord)
+{
     <h2>Send New Suggestion</h2>
-} else {
+}
+else
+{
     <h2>Edit Suggestion - [@Model.Id.ToString()]</h2>
 }
 
@@ -35,12 +41,16 @@
         @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
         @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
     </div>
-  
-  <input type="submit" value="Create" class="btn btn-success btn-lg" />
+
+    <input type="submit" value="Create" class="btn btn-success btn-lg" />
 }
 
 <br />
 
 <div>
-  @Html.ActionLink("Back to List", "Index", "Home")
+    @Html.ActionLink("Back to List", "Index", "Home")
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

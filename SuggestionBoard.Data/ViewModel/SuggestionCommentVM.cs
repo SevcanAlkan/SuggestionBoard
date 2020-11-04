@@ -7,16 +7,16 @@ using System.Text;
 
 namespace SuggestionBoard.Data.ViewModel
 {
-    public class SuggestionCommentVM : BaseVM
+    public sealed class SuggestionCommentVM : BaseVM
     {
         public string Text { get; set; }
     }
 
-    public class SuggestionCommentSaveVM : SaveVM
+    public sealed class SuggestionCommentSaveVM : SaveVM
     {
         [GuidValidation]
         public Guid SuggestionId { get; set; }
-        [Required, MinLengthErrorMessage(5), MaxLengthErrorMessage(500)]
+        [Required, MinLength(5), MaxLength(500)]
         public string Text { get; set; }
     }
 }

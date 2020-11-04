@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SuggestionBoard.Core.Validation;
@@ -14,13 +15,14 @@ using SuggestionBoard.Web.Models;
 
 namespace SuggestionBoard.Web.Controllers
 {
+    [Authorize]
     public class SuggestionController : Controller
     {
-        private ISuggestionService _service;
+        private readonly ISuggestionService _service;
         private readonly IMapper _mapper;
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<SuggestionController> _logger;
 
-        public SuggestionController(ILogger<HomeController> logger, ISuggestionService service, IMapper mapper)
+        public SuggestionController(ILogger<SuggestionController> logger, ISuggestionService service, IMapper mapper)
         {
             _service = service;
             _logger = logger;
@@ -45,7 +47,7 @@ namespace SuggestionBoard.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Detail(Guid id, [Bind("Id, Title, Description")] SuggestionSaveVM record)
+        public async Task<ActionResult> Detail(Guid id, SuggestionSaveVM record) //[Bind("Id, Title, Description")]
         {
             if (id != record.Id)
             {

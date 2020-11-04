@@ -15,6 +15,9 @@ using SuggestionBoard.Data;
 using SuggestionBoard.Data.Service;
 using SuggestionBoard.Data.SubStructure;
 using SuggestionBoard.Web.Helper;
+using SuggestionBoard.Domain;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace SuggestionBoard.Web
 {
@@ -30,7 +33,42 @@ namespace SuggestionBoard.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            #region MVC Configuration
+
             services.AddControllersWithViews();
+
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Latest)
+               .AddRazorPagesOptions(options =>
+               {
+                   //options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage");
+                   //options.Conventions.AuthorizeAreaPage("Identity", "/Account/Logout");
+               });
+            #endregion
+
+            #region .Net Identity
+
+            services.AddIdentity<User, Role>(config =>
+            {
+                config.Password.RequiredLength = 8;
+                config.Password.RequiredUniqueChars = 1;
+                config.Password.RequireUppercase = true;
+                config.Password.RequireLowercase = true;
+                config.Password.RequireNonAlphanumeric = true;
+
+                // Gerekirse kullan
+                // options.Cookies.ApplicationCookie.LoginPath = new PathString("/Admin/Account/Login");
+
+            }).AddEntityFrameworkStores<SuggestionBoardDbContext>();
+
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = $"/Authentication/Login";
+                options.LogoutPath = $"/Authentication/Logout";
+                options.AccessDeniedPath = $"/Authentication/AccessDenied";
+            });
+
+            #endregion
 
             #region AutoMapper Configuration
 
@@ -59,12 +97,12 @@ namespace SuggestionBoard.Web
 
             #endregion
 
-            #region Logging 
+            #region Logging
 
 
             #endregion
 
-            
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -82,6 +120,9 @@ namespace SuggestionBoard.Web
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseRouting();
 
