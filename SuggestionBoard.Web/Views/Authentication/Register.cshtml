@@ -27,7 +27,7 @@
         @Html.LabelFor(model => model.ConfirmPassword)
         @Html.EditorFor(model => model.ConfirmPassword, new { htmlAttributes = new { @class = "form-control" } })
         @Html.ValidationMessageFor(model => model.ConfirmPassword, "", new { @class = "text-danger" })
-    </div>
+    </div>    
 
     @Html.Hidden("ReturnUrl", Model.ReturnUrl)
 

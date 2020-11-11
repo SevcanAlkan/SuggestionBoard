@@ -43,7 +43,6 @@ namespace SuggestionBoard.Core.Validation
             }
             catch (Exception e)
             {
-                //TODO: add logging
                 return new ValidationResult(ErrorMessages.ErrorThrew);
             }
 

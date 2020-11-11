@@ -14,8 +14,10 @@ namespace SuggestionBoard.Data.Service
     {
         #region Ctor
 
-        public SuggestionCommentService(UnitOfWork uow, IMapper mapper, ILogger<SuggestionCommentService> logger)
-            : base(uow, mapper, logger)
+        public SuggestionCommentService(UnitOfWork uow, IMapper mapper, 
+            ILogger<SuggestionCommentService> logger,
+            ILogger<IRepository<SuggestionComment>> repositoryLogger)
+            : base(uow, mapper, logger, repositoryLogger)
         {
 
         }

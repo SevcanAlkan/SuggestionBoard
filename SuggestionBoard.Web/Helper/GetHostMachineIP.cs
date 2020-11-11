@@ -19,11 +19,11 @@ namespace SuggestionBoard.Web.Helper
             }
             catch (SocketException es)
             {
-                //TODO: convert to normal class and inject logging, then log here
+                //throw es;
             }
             catch (Exception e)
             {
-                //TODO: convert to normal class and inject logging, then log here
+                //throw e;                
             }
 
             return ipAddress;

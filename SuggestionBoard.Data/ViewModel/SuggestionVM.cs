@@ -42,5 +42,7 @@ namespace SuggestionBoard.Data.ViewModel
 
         public List<SuggestionCommentVM> suggestionComments { get; set; }
         public List<SuggestionReactionVM> suggestionReactions { get; set; }
+
+        public string GeneralError { get; set; }
     }
 }

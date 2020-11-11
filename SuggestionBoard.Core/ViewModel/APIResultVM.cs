@@ -16,7 +16,7 @@ namespace SuggestionBoard.Core.ViewModel
 
         public object Rec { get; set; }
         public bool IsSuccessful { get; set; }
-        [JsonIgnore]
-        public List<APIErrorVM> Errors { get; set; }
+
+        public List<string> Messages { get; set; }
     }
 }
