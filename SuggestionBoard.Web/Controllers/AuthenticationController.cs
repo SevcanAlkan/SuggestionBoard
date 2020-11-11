@@ -34,7 +34,12 @@ namespace SuggestionBoard.Web.Controllers
         [HttpGet]
         public IActionResult Register(string ReturnUrl = null)
         {
-            return View();
+            RegisterVM vm = new RegisterVM();
+
+            if (ReturnUrl != null)
+                vm.ReturnUrl = ReturnUrl;
+
+            return View(vm);
         }
 
         [HttpPost]

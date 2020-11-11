@@ -47,18 +47,17 @@ namespace SuggestionBoard.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Detail(Guid id, SuggestionSaveVM record) //[Bind("Id, Title, Description")]
+        public async Task<ActionResult> Detail(Guid id, SuggestionSaveVM record)
         {
             if (id != record.Id)
             {
-                return NotFound();
-                //view bag errors
+                ModelState.AddModelError("GeneralError", "Invalid attempt!");
+                return View(record);
             }
 
             if (!ModelState.IsValid)
             {
                 return View(record);
-                //view bag error messages
             }
 
             APIResultVM result = new APIResultVM();
@@ -75,11 +74,17 @@ namespace SuggestionBoard.Web.Controllers
 
             if (!result.IsSuccessful)
             {
+                if (result.Messages.Any())
+                {
+                    foreach (var error in result.Messages)
+                    {
+                        ModelState.AddModelError("GeneralError", error);
+                    }
+                }
+                
                 return View(record);
-                //wiew bag error messages
             }
-
-            // view bag success info
+            
             return RedirectToAction("Index", "Home");
         }
     }

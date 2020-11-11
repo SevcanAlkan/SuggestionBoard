@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using SuggestionBoard.Core.EntityFramework;
 using System;
 using System.Collections.Generic;
@@ -9,28 +10,30 @@ namespace SuggestionBoard.Data.SubStructure
 {
     public class UnitOfWork : IDisposable
     {
-        private SuggestionBoardDbContext con;
+        private SuggestionBoardDbContext _con;
         private bool disposed = false;
         private Dictionary<Type, object> repositories = new Dictionary<Type, object>();
 
-        public UnitOfWork(SuggestionBoardDbContext _con)
+        public UnitOfWork(SuggestionBoardDbContext con)
         {
-            con = _con;
+            _con = con;
         }
 
-        public IRepository<T> Repository<T>() where T : BaseEntity
+        public IRepository<D> Repository<D>(ILogger<IRepository<D>> logger)
+            where D : BaseEntity, IBaseEntity, new()
         {
-            if (repositories.Keys.Contains(typeof(T)) == true)
+            if (repositories.Keys.Contains(typeof(D)) == true)
             {
-                return repositories[typeof(T)] as IRepository<T>;
+                return repositories[typeof(D)] as IRepository<D>;
             }
-            IRepository<T> repository = new Repository<T>(con);
-            repositories.Add(typeof(T), repository);
+
+            IRepository<D> repository = new Repository<D>(_con, logger);
+            repositories.Add(typeof(D), repository);
             return repository;
         }
         public virtual async Task<int> SaveChanges()
         {
-            return await con.SaveChangesAsync();
+            return await _con.SaveChangesAsync();
         }
 
         public virtual void Dispose(bool disposing)
@@ -39,7 +42,7 @@ namespace SuggestionBoard.Data.SubStructure
             {
                 if (disposing)
                 {
-                    con.Dispose();
+                    _con.Dispose();
                 }
             }
             disposed = true;

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using SuggestionBoard.Core.EntityFramework;
 using System;
 using System.Collections.Generic;
@@ -20,12 +21,14 @@ namespace SuggestionBoard.Data.SubStructure
     }
 
     public class Repository<T> : IRepository<T>
-          where T : BaseEntity
+          where T : BaseEntity, IBaseEntity, new()
     {
+        private readonly ILogger<IRepository<T>> _logger;
         private SuggestionBoardDbContext con;
-        public Repository(SuggestionBoardDbContext context)
+        public Repository(SuggestionBoardDbContext context, ILogger<IRepository<T>> logger)
         {
             con = context;
+            _logger = logger;
         }
         public SuggestionBoardDbContext Context
         {
@@ -35,27 +38,73 @@ namespace SuggestionBoard.Data.SubStructure
         }
         public virtual async Task<T> GetByID(Guid id)
         {
-            return await con.Set<T>().FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
+            try
+            {
+                return await con.Set<T>().FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Repository.GetByID", ex);
+                return null;
+            }
         }
         public IQueryable<T> Get()
         {
-            return con.Set<T>().AsQueryable();
+            try
+            {
+                return con.Set<T>().AsQueryable();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Repository.Get", ex);
+                return null;
+            }
         }
         public virtual void Add(T entity)
         {
-            con.Set<T>().Add(entity);
+            try
+            {
+                con.Set<T>().Add(entity);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Repository.Add", ex);
+            }
         }
         public virtual void Update(T entity)
         {
-            con.Entry(entity).State = EntityState.Modified;
+            try
+            {
+                con.Entry(entity).State = EntityState.Modified;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Repository.Update", ex);
+            }
         }
         public IQueryable<T> Query(bool isDeleted = false)
         {
-            return con.Set<T>().AsNoTracking().Where(x => !x.IsDeleted || x.IsDeleted == isDeleted).AsQueryable();
+            try
+            {
+                return con.Set<T>().AsNoTracking().Where(x => !x.IsDeleted || x.IsDeleted == isDeleted).AsQueryable();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Repository.Query", ex);
+                return null;
+            }
         }
         public Task<bool> AnyAysnc(Expression<Func<T, bool>> expr)
         {
-            return con.Set<T>().AsNoTracking().AnyAsync(expr);
+            try
+            {
+                return con.Set<T>().AsNoTracking().AnyAsync(expr);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Repository.AnyAysnc", ex);
+                return null;
+            }
         }
     }
 }

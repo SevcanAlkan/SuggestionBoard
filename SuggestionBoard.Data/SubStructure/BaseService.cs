@@ -32,8 +32,6 @@ namespace SuggestionBoard.Data.SubStructure
         Task<APIResultVM> CommitAsync();
     }
 
-    //TODO: remove add and update VMs, the DetailVM will be used
-
     public class BaseService<S, L, D> : IBaseService<S, L, D>
         where S : SaveVM, ISaveVM, new()
         where L : BaseVM, IBaseVM, new()
@@ -42,19 +40,22 @@ namespace SuggestionBoard.Data.SubStructure
         protected UnitOfWork _uow;
         protected readonly IMapper _mapper;
         protected readonly ILogger<BaseService<S, L, D>> _logger;
+        private readonly ILogger<IRepository<D>> _repositoryLogger;
 
-        public BaseService(UnitOfWork uow, IMapper mapper, ILogger<BaseService<S, L, D>> logger)
+        public BaseService(UnitOfWork uow, IMapper mapper, ILogger<BaseService<S, L, D>> logger,
+            ILogger<IRepository<D>> repositoryLogger)
         {
             _uow = uow;
             _mapper = mapper;
             _logger = logger;
+            _repositoryLogger = repositoryLogger;
         }
 
         protected IRepository<D> Repository
         {
             get
             {
-                return _uow.Repository<D>();
+                return _uow.Repository<D>(_repositoryLogger);
             }
         }
 
@@ -65,11 +66,11 @@ namespace SuggestionBoard.Data.SubStructure
                 if (id.IsNull())
                     return false;
 
-                return await _uow.Repository<D>().AnyAysnc(a => a.Id == id);
+                return await _uow.Repository<D>(_repositoryLogger).AnyAysnc(a => a.Id == id);
             }
             catch (Exception e)
             {
-                APIResult.CreateVMWithError(e);
+                _logger.LogError("BaseService.AnyAsync", e);
                 return false;
             }
         }
@@ -80,11 +81,11 @@ namespace SuggestionBoard.Data.SubStructure
                 if (id.IsNull())
                     return null;
 
-                return _mapper.Map<L>(await _uow.Repository<D>().GetByID(id));
+                return _mapper.Map<L>(await _uow.Repository<D>(_repositoryLogger).GetByID(id));
             }
             catch (Exception e)
             {
-                APIResult.CreateVMWithError(e);
+                _logger.LogError("BaseService.GetByIdAsync", e);
                 return null;
             }
         }
@@ -96,7 +97,7 @@ namespace SuggestionBoard.Data.SubStructure
             }
             catch (Exception e)
             {
-                APIResult.CreateVMWithError(e);
+                _logger.LogError("BaseService.GetAllAsync", e);
                 return null;
             }
         }
@@ -108,7 +109,7 @@ namespace SuggestionBoard.Data.SubStructure
             }
             catch (Exception e)
             {
-                APIResult.CreateVMWithError(e);
+                _logger.LogError("BaseService.GetAllAsync", e);
                 return null;
             }
         }
@@ -138,7 +139,8 @@ namespace SuggestionBoard.Data.SubStructure
             }
             catch (Exception e)
             {
-                return APIResult.CreateVMWithError(e);
+                _logger.LogError("BaseService.AddAsync", e);
+                return APIResult.CreateVM(messages: new List<string>() { "An exception occured!" });
             }
         }
         public virtual async Task<APIResultVM> UpdateAsync(Guid id, S model, Guid? userId = null, bool isCommit = true)
@@ -147,9 +149,9 @@ namespace SuggestionBoard.Data.SubStructure
             {
                 Guid _userId = userId == null ? Guid.Empty : userId.Value;
 
-                D entity = await _uow.Repository<D>().GetByID(id);
+                D entity = await _uow.Repository<D>(_repositoryLogger).GetByID(id);
                 if (entity.IsNull())
-                    return APIResult.CreateVM(false, id);
+                    return APIResult.CreateVM(false, id, new List<string>() { ErrorMessages.RecordNotFound });
 
                 entity = _mapper.Map<S, D>(model, entity);
 
@@ -168,7 +170,8 @@ namespace SuggestionBoard.Data.SubStructure
             }
             catch (Exception e)
             {
-                return APIResult.CreateVMWithError(e);
+                _logger.LogError("BaseService.UpdateAsync", e);
+                return APIResult.CreateVM(messages: new List<string>() { "An exception occured!" });
             }
         }
         public virtual async Task<APIResultVM> DeleteAsync(Guid id, Guid? userId = null, bool isCommit = true)
@@ -177,9 +180,9 @@ namespace SuggestionBoard.Data.SubStructure
             {
                 Guid _userId = userId == null ? Guid.Empty : userId.Value;
 
-                D entity = await _uow.Repository<D>().GetByID(id);
+                D entity = await _uow.Repository<D>(_repositoryLogger).GetByID(id);
                 if (entity.IsNull())
-                    return APIResult.CreateVM(false, id);
+                    return APIResult.CreateVM(false, id, new List<string>() { ErrorMessages.RecordNotFound });
 
                 if (entity is ITableEntity)
                 {
@@ -197,7 +200,8 @@ namespace SuggestionBoard.Data.SubStructure
             }
             catch (Exception e)
             {
-                return APIResult.CreateVMWithError(e);
+                _logger.LogError("BaseService.DeleteAsync", e);
+                return APIResult.CreateVM(messages: new List<string>() { "An exception occured!" });
             }
         }
         public virtual async Task<APIResultVM> ReverseDeleteAsync(Guid id, Guid? userId, bool isCommit = true)
@@ -206,9 +210,9 @@ namespace SuggestionBoard.Data.SubStructure
             {
                 Guid _userId = userId == null ? Guid.Empty : userId.Value;
 
-                D entity = await _uow.Repository<D>().GetByID(id);
+                D entity = await _uow.Repository<D>(_repositoryLogger).GetByID(id);
                 if (entity.IsNull())
-                    return APIResult.CreateVM(false, id);
+                    return APIResult.CreateVM(false, id, new List<string>() { ErrorMessages.RecordNotFound });
 
                 if (entity is ITableEntity)
                 {
@@ -226,7 +230,8 @@ namespace SuggestionBoard.Data.SubStructure
             }
             catch (Exception e)
             {
-                return APIResult.CreateVMWithError(e);
+                _logger.LogError("BaseService.ReverseDeleteAsync", e);
+                return APIResult.CreateVM(messages: new List<string>() { "An exception occured!" });
             }
         }
 
@@ -240,7 +245,8 @@ namespace SuggestionBoard.Data.SubStructure
             }
             catch (Exception e)
             {
-                return APIResult.CreateVMWithError(e);
+                _logger.LogError("BaseService.CommitAsync", e);
+                return APIResult.CreateVM(messages: new List<string>() { "An exception occured!" });
             }
         }
     }

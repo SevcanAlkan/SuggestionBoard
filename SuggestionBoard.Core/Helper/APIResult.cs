@@ -8,56 +8,34 @@ namespace SuggestionBoard.Core.Helper
 {
     public static class APIResult
     {
-        public static APIResultVM CreateVM(bool isSuccessful = false, Guid? recId = null)
+        public static APIResultVM CreateVM(bool isSuccessful = false, Guid? recId = null, List<string> messages = null)
         {
-            var vm = new APIResultVM()
-            {
-                IsSuccessful = isSuccessful,
-                RecId = recId
-            };
-            return vm;
-        }
+            if (messages == null)
+                messages = new List<string>();
 
-        public static APIResultVM CreateVMWithRec<T>(T rec, bool isSuccessful = false, Guid? recId = null)
-        {
             var vm = new APIResultVM()
             {
                 IsSuccessful = isSuccessful,
                 RecId = recId,
-                Rec = rec
+                Messages = messages
+            };
+            return vm;
+        }
+
+        public static APIResultVM CreateVMWithRec<T>(T rec, bool isSuccessful = false, Guid? recId = null, List<string> messages = null)
+        {
+            if (messages == null)
+                messages = new List<string>();
+
+            var vm = new APIResultVM()
+            {
+                IsSuccessful = isSuccessful,
+                RecId = recId,
+                Rec = rec,
+                Messages = messages
             };
 
             return vm;
         }
-
-        public static APIResultVM CreateVMWithError(Exception e, APIResultVM vm = null)
-        {
-            if (vm == null)
-                vm = new APIResultVM()
-                {
-                    IsSuccessful = false,
-                    RecId = null
-                };
-
-            if (vm.Errors == null)
-                vm.Errors = new List<APIErrorVM>();
-
-            vm.Errors.Add(new APIErrorVM()
-            {
-                DateTime = DateTime.Now,
-                ErrorId = Guid.NewGuid(),
-                Message = e.Message,
-                Source = e.Source,
-                StackTrace = e.StackTrace,
-                InnerException = e.InnerException != null ? (
-                    "Message: " + (e.InnerException.Message != null ? e.InnerException.Message : "") +
-                    "Source: " + (e.InnerException.Source != null ? e.InnerException.Source : "") +
-                    "Stack Trace: " + (e.InnerException.StackTrace != null ? e.InnerException.StackTrace : "")
-                ) : ""
-            });
-
-            return vm;
-        }
-
     }
 }

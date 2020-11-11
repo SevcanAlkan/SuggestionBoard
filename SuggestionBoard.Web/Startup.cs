@@ -18,6 +18,8 @@ using SuggestionBoard.Web.Helper;
 using SuggestionBoard.Domain;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Serilog.Core;
+using Microsoft.Extensions.Logging;
 
 namespace SuggestionBoard.Web
 {
@@ -81,13 +83,13 @@ namespace SuggestionBoard.Web
 
             #endregion
 
-            #region Dependency Injection
+            #region Dependency Injection          
 
             services.AddSingleton(mapper);
             services.AddDbContext<SuggestionBoardDbContext>(db =>
                 db.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")
                                 .Replace("{HostMachineIpAddress}", GetHostMachineIP.Get())));
-            services.AddTransient<UnitOfWork>();
+            services.AddScoped<UnitOfWork>();
             services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
 
             services.AddTransient<ISuggestionService, SuggestionService>();
@@ -96,12 +98,6 @@ namespace SuggestionBoard.Web
             services.AddTransient(typeof(IBaseService<,,>), typeof(BaseService<,,>));
 
             #endregion
-
-            #region Logging
-
-
-            #endregion
-
 
         }
 
