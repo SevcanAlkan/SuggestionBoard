@@ -25,8 +25,6 @@ namespace SuggestionBoard.Domain
 
     public class Suggestion : SuggestionBase
     {
-        public int TotalReacts => LikeAmount + DislikeAmount;
-
         //Foreign Keys...
 
         public virtual ICollection<SuggestionComment> SuggestionComments { get; set; }

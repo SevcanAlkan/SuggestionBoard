@@ -1,4 +1,5 @@
-﻿@model List<SuggestionBoard.Data.ViewModel.SuggestionVM>;
+﻿@using SuggestionBoard.Data.ViewModel
+@model SuggestionPaggingListVM
 
 @{
     ViewData["Title"] = "Home Page";
@@ -7,6 +8,18 @@
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
+
+    @*<label for="currentFilter">Current Filter</label>
+    <input id="currentFilter" value="@ViewData["CurrentFilter"]" />
+
+    <label for="pageNumber">Page</label>
+    <input id="pageNumber" value="@ViewData["PageNumber"]" />
+
+    <label for="currentSort">Sort</label>
+    <input id="currentSort" value="@ViewData["CurrentSort"]" />
+
+    <label for="isNextPageExist">Is Next Page Exist</label>
+    <input id="isNextPageExist" value="@(Model.IsNextPageExist? "True" : "False")" />*@
 
     <div class="container" style="margin-bottom:1rem">
 
@@ -19,8 +32,8 @@
 
         <div class="row">
             <div class="col">
-                @if (Model == null || !Model.Any())
-                { //If there is no record
+                @if ((Model.Records == null || !Model.Records.Any()) && ViewData["CurrentFilter"] == null)
+                {
                     <div class="jumbotron jumbotron-fluid">
                         <div class="container">
                             <h1 class="display-4">There is no any suggestion 😢</h1>
@@ -31,11 +44,113 @@
                 else
                 {
 
-                    @foreach (var item in Model)
+                    <div class="row container-fluid">
+
+                        <nav class="navbar navbar-light bg-light">
+                            <a class="navbar-brand" href="#">Sorting</a>
+                            <form class="form-inline sort-options">
+
+                                <a class="btn btn-sm btn-link" type="button" asp-action="Index"
+                                   asp-route-sortOrder="newest"
+                                   asp-route-searchString="@ViewData["CurrentFilter"]"
+                                   asp-route-pageNumber="@ViewData["PageNumber"]"
+                                   style="@(ViewData["CurrentSort"] != null && ViewData["CurrentSort"].ToString().ToUpper() == "NEWEST" ?
+                            "font-weight: bold !important" : "")">Oldest</a>
+                                <a class="btn btn-sm btn-link" type="button" asp-action="Index"
+                                   asp-route-sortOrder="oldest"
+                                   asp-route-searchString="@ViewData["CurrentFilter"]"
+                                   asp-route-pageNumber="@ViewData["PageNumber"]"
+                                   style="@(ViewData["CurrentSort"] != null && ViewData["CurrentSort"].ToString().ToUpper() == "OLDEST" ?
+                            "font-weight: bold !important" : "")">Newest</a>
+                                <a class="btn btn-sm btn-link" type="button" asp-action="Index"
+                                   asp-route-sortOrder="comment"
+                                   asp-route-searchString="@ViewData["CurrentFilter"]"
+                                   asp-route-pageNumber="@ViewData["PageNumber"]"
+                                   style=@(ViewData["CurrentSort"] != null && ViewData["CurrentSort"].ToString().ToUpper() == "COMMENT"?
+                            "font-weight: bold !important" : "")>Most Commented</a>
+                                <a class="btn btn-sm btn-link" type="button" asp-action="Index"
+                                   asp-route-sortOrder="reaction"
+                                   asp-route-searchString="@ViewData["CurrentFilter"]"
+                                   asp-route-pageNumber="@ViewData["PageNumber"]"
+                                   style="@(ViewData["CurrentSort"] != null && ViewData["CurrentSort"].ToString().ToUpper() == "REACTION" ?
+                            "font-weight: bold !important" : "")">Most Reacted</a>
+                                <a class="btn btn-sm btn-link" type="button" asp-action="Index"
+                                   asp-route-sortOrder="like"
+                                   asp-route-searchString="@ViewData["CurrentFilter"]"
+                                   asp-route-pageNumber="@ViewData["PageNumber"]"
+                                   style="@(ViewData["CurrentSort"] != null && ViewData["CurrentSort"].ToString().ToUpper() == "LIKE" ?
+                            "font-weight: bold !important" : "")">Most Liked</a>
+
+                            </form>
+                            <form asp-controller="Home" asp-action="Index" method="get" class="form-inline"
+                                  asp-route-sortOrder="@(ViewData["CurrentSort"])">
+                                <input class="form-control mr-sm-2" type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+                                <input class="btn btn-outline-success my-2 my-sm-0" type="submit" value="Search" />
+                                <a asp-action="Index" style="margin-left: 0.5rem">Reset sorting and filters</a>
+                            </form>
+                        </nav>
+
+                    </div>
+
+                    <br />
+
+                    @if (Model.Records.Count == 0)
                     {
+                        <div class="jumbotron jumbotron-fluid">
+                            <div class="container">
+                                <h1 class="display-4">There is no any suggestion 😢</h1>
+                                <p class="lead">Try to search different keywords or clean filters</p>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (SuggestionVM item in Model.Records)
+                        {
+                            <div class="card text-center">
+                                <div class="card-header">
+                                    <a asp-action="Profile" asp-controller="User" asp-route-id="@item.CreateById">@item.CreateByName</a> sent
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">@item.Title</h5>
+                                    <p class="card-text text-muted"><em>@item.Description</em></p>
+                                    <a class="btn btn-primary" asp-action="Detail" asp-controller="Suggestion" asp-route-id="@item.Id">Open Details</a>
+                                </div>
+                                <div class="card-footer text-muted">
+
+                                    @{
+                                        int dayCount = (int)Math.Round((DateTime.UtcNow - item.CreateDateTime).TotalDays);
+                                    }
+
+                                    @dayCount days ago | @item.LikeAmount like | @item.CommentCount comment | @item.TotalReaction reaction point
+
+                                </div>
+                            </div>
+
+                            <br />
+                        }
+
 
                     }
 
+                    <div class="btn-group" role="group">
+                        <a type="button" aria-disabled="true" 
+                                asp-action="Index"
+                                asp-route-sortOrder="@(ViewData["CurrentSort"])"
+                                asp-route-searchString="@ViewData["CurrentFilter"]"
+                                asp-route-pageNumber="@(ViewData["PageNumber"]!= null && (ViewData["PageNumber"] as int?).Value > 1 ? (ViewData["PageNumber"] as int?).Value - 1 : 1 )"
+                                class="@(ViewData["PageNumber"]!= null && (ViewData["PageNumber"] as int?).Value > 1 ? "btn btn-light" : "btn btn-light disabled")">
+                            Previous
+                        </a>
+                        <a type="button" aria-disabled="true"  
+                                asp-action="Index"
+                                asp-route-sortOrder="@(ViewData["CurrentSort"])"
+                                asp-route-searchString="@ViewData["CurrentFilter"]"
+                                asp-route-pageNumber="@(Model.IsNextPageExist ? (ViewData["PageNumber"]!= null ? (ViewData["PageNumber"] as int?).Value + 1 : 2) : 1 )"
+                                class="@(Model.IsNextPageExist? "btn btn-light" : "btn btn-light disabled")">
+                            Next
+                        </a>
+                    </div>
                 }
             </div>
         </div>

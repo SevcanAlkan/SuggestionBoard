@@ -5,12 +5,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SuggestionBoard.Core.Validation;
 using SuggestionBoard.Core.ViewModel;
 using SuggestionBoard.Data.Service;
 using SuggestionBoard.Data.ViewModel;
+using SuggestionBoard.Domain;
 using SuggestionBoard.Web.Models;
 
 namespace SuggestionBoard.Web.Controllers
@@ -21,12 +23,14 @@ namespace SuggestionBoard.Web.Controllers
         private readonly ISuggestionService _service;
         private readonly IMapper _mapper;
         private readonly ILogger<SuggestionController> _logger;
+        private readonly UserManager<User> _userManager;
 
-        public SuggestionController(ILogger<SuggestionController> logger, ISuggestionService service, IMapper mapper)
+        public SuggestionController(ILogger<SuggestionController> logger, ISuggestionService service, IMapper mapper, UserManager<User> userManager)
         {
             _service = service;
             _logger = logger;
             _mapper = mapper;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -62,14 +66,16 @@ namespace SuggestionBoard.Web.Controllers
 
             APIResultVM result = new APIResultVM();
 
+            var user = await _userManager.FindByEmailAsync(User.Identity.Name);
+
             if (record.Id.IsNull() || record.Id == Guid.Empty
                 || id.IsNull() || id == Guid.Empty)
             {
-                result = await _service.AddAsync(record);
+                result = await _service.AddAsync(record, user.Id);
             }
             else
             {
-                result = await _service.UpdateAsync(record.Id, record);
+                result = await _service.UpdateAsync(record.Id, record, user.Id);
             }
 
             if (!result.IsSuccessful)
