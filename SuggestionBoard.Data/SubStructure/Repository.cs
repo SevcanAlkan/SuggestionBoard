@@ -86,7 +86,7 @@ namespace SuggestionBoard.Data.SubStructure
         {
             try
             {
-                return con.Set<T>().AsNoTracking().Where(x => !x.IsDeleted || x.IsDeleted == isDeleted).AsQueryable();
+                return con.Set<T>().Where(x => !x.IsDeleted || x.IsDeleted == isDeleted).AsQueryable();
             }
             catch (Exception ex)
             {

@@ -18,6 +18,18 @@ namespace SuggestionBoard.Data.ViewModel
         public int LikeAmount { get; set; }
         public int DislikeAmount { get; set; }
         public int TotalReaction { get; set; }
+
+        public Guid CreateById { get; set; }
+        public string CreateByName { get; set; }
+
+        public DateTime CreateDateTime { get; set; }
+    }
+
+    public sealed class SuggestionPaggingListVM
+    {
+        public List<SuggestionVM> Records { get; set; }
+
+        public bool IsNextPageExist { get; set; }
     }
 
     public sealed class SuggestionSaveVM : SaveVM

@@ -19,12 +19,10 @@ namespace SuggestionBoard.Data.SubStructure
         where L : BaseVM, IBaseVM, new()
         where D : BaseEntity, IBaseEntity, new()
     {
-        //IRepository<D> Repository { get; }
-
         Task<bool> AnyAsync(Guid id);
         Task<L> GetByIdAsync(Guid id);
-        Task<IEnumerable<L>> GetAllAsync();
-        Task<IList<L>> GetAllAsync(Expression<Func<D, bool>> expr);
+        Task<IEnumerable<L>> GetAllAsync(bool asNoTracking = true);
+        Task<IList<L>> GetAllAsync(Expression<Func<D, bool>> expr, bool asNoTracking = true);
         Task<APIResultVM> AddAsync(S model, Guid? userId = null, bool isCommit = true);
         Task<APIResultVM> UpdateAsync(Guid id, S model, Guid? userId = null, bool isCommit = true);
         Task<APIResultVM> DeleteAsync(Guid id, Guid? userId = null, bool isCommit = true);
@@ -89,11 +87,16 @@ namespace SuggestionBoard.Data.SubStructure
                 return null;
             }
         }
-        public virtual async Task<IEnumerable<L>> GetAllAsync()
+        public virtual async Task<IEnumerable<L>> GetAllAsync(bool asNoTracking = true)
         {
             try
             {
-                return await _mapper.ProjectTo<L>(Repository.Query()).ToListAsync();
+                var query = Repository.Query();
+
+                if (asNoTracking)
+                    query = query.AsNoTracking();
+
+                return await _mapper.ProjectTo<L>(query).ToListAsync();
             }
             catch (Exception e)
             {
@@ -101,11 +104,16 @@ namespace SuggestionBoard.Data.SubStructure
                 return null;
             }
         }
-        public virtual async Task<IList<L>> GetAllAsync(Expression<Func<D, bool>> expr)
+        public virtual async Task<IList<L>> GetAllAsync(Expression<Func<D, bool>> expr, bool asNoTracking = true)
         {
             try
             {
-                return await _mapper.ProjectTo<L>(Repository.Query().Where(expr)).ToListAsync();
+                var query = Repository.Query().Where(expr);
+
+                if (asNoTracking)
+                    query = query.AsNoTracking();
+
+                return await _mapper.ProjectTo<L>(query).ToListAsync();
             }
             catch (Exception e)
             {

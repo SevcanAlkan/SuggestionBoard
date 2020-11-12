@@ -26,16 +26,15 @@ namespace SuggestionBoard.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IAsyncEnumerable<SuggestionVM>>> Index()
+        public ActionResult<IAsyncEnumerable<SuggestionPaggingListVM>> Index(string sortOrder, string searchString, int pageNumber = 1)
         {
-            _logger.LogInformation("Home page openned");
+            ViewData["CurrentSort"] = sortOrder.IsNullOrEmpty() ? "oldest" : sortOrder;
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["PageNumber"] = pageNumber;
 
-            var result = await _suggestionService.GetAllAsync();
-            //sadece gecerli olanlari cek ve sirala
+            var suggestions = _suggestionService.GetList(false, searchString, sortOrder, pageNumber, 3);
 
-            //order by ekle : date old/newest ve reaction
-
-            return View(result);
+            return View(suggestions);
         }
 
         public IActionResult Privacy()
