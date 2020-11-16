@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SuggestionBoard.Core.Enum;
 using SuggestionBoard.Core.Validation;
+using SuggestionBoard.Core.ViewModel;
 using SuggestionBoard.Data.SubStructure;
 using SuggestionBoard.Data.ViewModel;
 using SuggestionBoard.Domain;
@@ -21,7 +23,7 @@ namespace SuggestionBoard.Data.Service
 
         #region Ctor
 
-        public SuggestionService(UnitOfWork uow, IMapper mapper, 
+        public SuggestionService(UnitOfWork uow, IMapper mapper,
             ILogger<SuggestionService> logger,
             ILogger<IRepository<Suggestion>> repositoryLogger,
             SuggestionBoardDbContext context)
@@ -35,7 +37,7 @@ namespace SuggestionBoard.Data.Service
         #region Methods
 
         public SuggestionPaggingListVM GetList(bool showIsDeleted = false, string searchText = "", string sortOrder = "", int pageNumber = 1, int pageItemCount = 10)
-        {            
+        {
             var query = Repository.Query(showIsDeleted).AsNoTracking();
 
             if (!searchText.IsNullOrEmpty())
@@ -46,20 +48,20 @@ namespace SuggestionBoard.Data.Service
             }
 
             var selectedQuery = query.Include(s => s.SuggestionComments).Select(s => new SuggestionVM()
-                {
-                    Id = s.Id,
-                    CreateDateTime = s.CreateDT,
-                    Description = s.Description,
-                    Status = s.Status,
-                    LikeAmount = s.LikeAmount,
-                    DislikeAmount = s.DislikeAmount,
-                    Title = s.Title,
-                    TotalReaction = s.DislikeAmount + s.LikeAmount + ((s.SuggestionComments != null ? s.SuggestionComments.Count : 0) * 2),
-                    CommentCount = s.SuggestionComments != null ? s.SuggestionComments.Count : 0,
-                    CreateById = s.CreateBy,
-                    CreateByName = ""
+            {
+                Id = s.Id,
+                CreateDateTime = s.CreateDT,
+                Description = s.Description,
+                Status = s.Status,
+                LikeAmount = s.LikeAmount,
+                DislikeAmount = s.DislikeAmount,
+                Title = s.Title,
+                TotalReaction = s.DislikeAmount + s.LikeAmount + ((s.SuggestionComments != null ? s.SuggestionComments.Count : 0) * 2),
+                CommentCount = s.SuggestionComments != null ? s.SuggestionComments.Count : 0,
+                CreateById = s.CreateBy,
+                CreateByName = ""
 
-                });
+            });
 
             SuggestionPaggingListVM result = new SuggestionPaggingListVM();
 
@@ -109,11 +111,73 @@ namespace SuggestionBoard.Data.Service
             return result;
         }
 
+        public async Task<SuggestionDetailVM> GetWithAdditionalData(Guid? id)
+        {
+            SuggestionDetailVM vm = new SuggestionDetailVM();
+            vm.Rec = new SuggestionSaveVM();
+
+            if (id.IsNullOrEmpty())
+                return vm;
+
+            var record = await Repository.GetByIDAysnc(id.Value);
+
+            if (record != null)
+            {
+                vm.Id = id.Value;
+                vm.Rec = _mapper.Map<SuggestionSaveVM>(record);
+
+                var users = _con.Set<User>().AsNoTracking().Select(s => new { s.Id, s.UserName }).ToList();
+
+                //Load Comments
+                vm.SuggestionComments = await _mapper.ProjectTo<SuggestionCommentVM>(_con.Set<SuggestionComment>().AsNoTracking().Where(a => a.SuggestionId == id.Value)
+                    .OrderByDescending(o => o.CreateDT)).ToListAsync();
+
+                foreach (var item in vm.SuggestionComments)
+                {
+                    item.CreateByName = users.Any(a => a.Id == item.CreateBy) ? users.Where(a => a.Id == item.CreateBy).Select(s => s.UserName).FirstOrDefault() : "";
+                }
+
+                //Get Reactions
+                vm.SuggestionReactions = await _mapper.ProjectTo<SuggestionReactionVM>(_con.Set<SuggestionReaction>().AsNoTracking().Where(a => a.SuggestionId == id.Value)
+                    .OrderByDescending(o => o.CreateDT)).ToListAsync();
+
+                foreach (var item in vm.SuggestionReactions)
+                {
+                    item.CreateByName = users.Any(a => a.Id == item.CreateBy) ? users.Where(a => a.Id == item.CreateBy).Select(s => s.UserName).FirstOrDefault() : "";
+                }
+            }
+
+            return vm;
+        }
+
+        public async Task UpdateReactionCount(Guid? id, UserReaction reaction)
+        {
+            var record = await Repository.GetByIDAysnc(id.Value);
+
+            if (record != null)
+            {
+                switch (reaction)
+                {
+                    case UserReaction.Like:
+                        record.LikeAmount = record.LikeAmount + 1;
+                        break;
+                    case UserReaction.Dislike:
+                        record.DislikeAmount = record.DislikeAmount + 1;
+                        break;
+                }
+
+                Repository.Update(record);
+                await CommitAsync();
+            }
+        }
+
         #endregion
     }
 
     public interface ISuggestionService : IBaseService<SuggestionSaveVM, SuggestionVM, Suggestion>
     {
         SuggestionPaggingListVM GetList(bool showIsDeleted = false, string searchText = "", string sortOrder = "", int pageNumber = 1, int pageItemCount = 10);
+        Task<SuggestionDetailVM> GetWithAdditionalData(Guid? id);
+        Task UpdateReactionCount(Guid? id, UserReaction reaction);
     }
 }

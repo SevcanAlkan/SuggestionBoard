@@ -11,6 +11,9 @@ namespace SuggestionBoard.Data.ViewModel
     public sealed class SuggestionReactionVM : BaseVM
     {
         public UserReaction Reaction { get; set; }
+        public Guid CreateBy { get; set; }
+        public string CreateByName { get; set; }
+        public DateTime CreateDT { get; set; }
     }
 
     public sealed class SuggestionReactionSaveVM : SaveVM

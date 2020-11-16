@@ -13,6 +13,8 @@ namespace SuggestionBoard.Core.Validation
 
         public static string RecordNotFound = "Record couldn't found!";
 
+        public static string NotOwnerOfRecord = "Not owner of the record!";
+
         public static string CombineWithParams(string errorMessage, params string[] args)
         {
             if (args == null || args.Length == 0)

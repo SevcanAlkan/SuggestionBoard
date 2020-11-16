@@ -4,10 +4,10 @@ using System.Text;
 
 namespace SuggestionBoard.Core.ViewModel
 {
-    public interface ISaveVM : IBaseVM
+    public interface ISaveVM
     {
     }
-    public class SaveVM : BaseVM, ISaveVM
+    public class SaveVM : ISaveVM
     {
     }
 }

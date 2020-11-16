@@ -20,12 +20,13 @@ namespace SuggestionBoard.Data.SubStructure
         where D : BaseEntity, IBaseEntity, new()
     {
         Task<bool> AnyAsync(Guid id);
+        Task<bool> AnyAsync(Expression<Func<D, bool>> expr);
         Task<L> GetByIdAsync(Guid id);
         Task<IEnumerable<L>> GetAllAsync(bool asNoTracking = true);
         Task<IList<L>> GetAllAsync(Expression<Func<D, bool>> expr, bool asNoTracking = true);
         Task<APIResultVM> AddAsync(S model, Guid? userId = null, bool isCommit = true);
         Task<APIResultVM> UpdateAsync(Guid id, S model, Guid? userId = null, bool isCommit = true);
-        Task<APIResultVM> DeleteAsync(Guid id, Guid? userId = null, bool isCommit = true);
+        Task<APIResultVM> DeleteAsync(Guid id, Guid? userId = null, bool shouldBeOwner = false, bool isCommit = true);
         Task<APIResultVM> ReverseDeleteAsync(Guid id, Guid? userId, bool isCommit = true);
         Task<APIResultVM> CommitAsync();
     }
@@ -72,6 +73,22 @@ namespace SuggestionBoard.Data.SubStructure
                 return false;
             }
         }
+        public virtual async Task<bool> AnyAsync(Expression<Func<D, bool>> expr)
+        {
+            try
+            {
+                if (expr == null)
+                    return false;
+
+                return await _uow.Repository<D>(_repositoryLogger).AnyAysnc(expr);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("BaseService.AnyAsync", e);
+                return false;
+            }
+        }
+
         public virtual async Task<L> GetByIdAsync(Guid id)
         {
             try
@@ -79,7 +96,7 @@ namespace SuggestionBoard.Data.SubStructure
                 if (id.IsNull())
                     return null;
 
-                return _mapper.Map<L>(await _uow.Repository<D>(_repositoryLogger).GetByID(id));
+                return _mapper.Map<L>(await _uow.Repository<D>(_repositoryLogger).GetByIDAysnc(id));
             }
             catch (Exception e)
             {
@@ -157,7 +174,7 @@ namespace SuggestionBoard.Data.SubStructure
             {
                 Guid _userId = userId == null ? Guid.Empty : userId.Value;
 
-                D entity = await _uow.Repository<D>(_repositoryLogger).GetByID(id);
+                D entity = await _uow.Repository<D>(_repositoryLogger).GetByIDAysnc(id);
                 if (entity.IsNull())
                     return APIResult.CreateVM(false, id, new List<string>() { ErrorMessages.RecordNotFound });
 
@@ -182,15 +199,18 @@ namespace SuggestionBoard.Data.SubStructure
                 return APIResult.CreateVM(messages: new List<string>() { "An exception occured!" });
             }
         }
-        public virtual async Task<APIResultVM> DeleteAsync(Guid id, Guid? userId = null, bool isCommit = true)
+        public virtual async Task<APIResultVM> DeleteAsync(Guid id, Guid? userId = null, bool shouldBeOwner = false, bool isCommit = true)
         {
             try
             {
                 Guid _userId = userId == null ? Guid.Empty : userId.Value;
 
-                D entity = await _uow.Repository<D>(_repositoryLogger).GetByID(id);
+                D entity = await _uow.Repository<D>(_repositoryLogger).GetByIDAysnc(id);
                 if (entity.IsNull())
                     return APIResult.CreateVM(false, id, new List<string>() { ErrorMessages.RecordNotFound });
+
+                if (shouldBeOwner && (_userId == Guid.Empty || _userId != (entity as ITableEntity).CreateBy))
+                    return APIResult.CreateVM(false, id, new List<string>() { ErrorMessages.NotOwnerOfRecord });
 
                 if (entity is ITableEntity)
                 {
@@ -218,7 +238,7 @@ namespace SuggestionBoard.Data.SubStructure
             {
                 Guid _userId = userId == null ? Guid.Empty : userId.Value;
 
-                D entity = await _uow.Repository<D>(_repositoryLogger).GetByID(id);
+                D entity = await _uow.Repository<D>(_repositoryLogger).GetByIDAysnc(id);
                 if (entity.IsNull())
                     return APIResult.CreateVM(false, id, new List<string>() { ErrorMessages.RecordNotFound });
 
