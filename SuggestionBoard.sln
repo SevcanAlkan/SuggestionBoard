@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30517.126
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuggestionBoard.Web", "SuggestionBoard.Web\SuggestionBoard.Web.csproj", "{4E20EC73-EA52-43F1-817A-258A143EA21A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuggestionBoard.Web", "SuggestionBoard.Web\SuggestionBoard.Web.csproj", "{4E20EC73-EA52-43F1-817A-258A143EA21A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuggestionBoard.Domain", "SuggestionBoard.Domain\SuggestionBoard.Domain.csproj", "{451A7D57-0361-43B2-98AB-844D6FA0A30B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuggestionBoard.Domain", "SuggestionBoard.Domain\SuggestionBoard.Domain.csproj", "{451A7D57-0361-43B2-98AB-844D6FA0A30B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuggestionBoard.Data", "SuggestionBoard.Data\SuggestionBoard.Data.csproj", "{1F77D2FC-7CD3-4D48-8BA3-31AC97ED662B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuggestionBoard.Data", "SuggestionBoard.Data\SuggestionBoard.Data.csproj", "{1F77D2FC-7CD3-4D48-8BA3-31AC97ED662B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuggestionBoard.Core", "SuggestionBoard.Core\SuggestionBoard.Core.csproj", "{2D0D51E4-F1A9-4C8A-A45E-47728E6CF079}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuggestionBoard.Core", "SuggestionBoard.Core\SuggestionBoard.Core.csproj", "{2D0D51E4-F1A9-4C8A-A45E-47728E6CF079}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuggestionBoard.Test", "SuggestionBoard.Test\SuggestionBoard.Test.csproj", "{6736F490-A1B9-4CCF-8FE0-1E6BACCBF16F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{2D0D51E4-F1A9-4C8A-A45E-47728E6CF079}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D0D51E4-F1A9-4C8A-A45E-47728E6CF079}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D0D51E4-F1A9-4C8A-A45E-47728E6CF079}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6736F490-A1B9-4CCF-8FE0-1E6BACCBF16F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6736F490-A1B9-4CCF-8FE0-1E6BACCBF16F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6736F490-A1B9-4CCF-8FE0-1E6BACCBF16F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6736F490-A1B9-4CCF-8FE0-1E6BACCBF16F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

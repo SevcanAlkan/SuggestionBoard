@@ -3,24 +3,38 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SuggestionBoard.Core.Validation;
+using SuggestionBoard.Data.Service;
+using SuggestionBoard.Data.ViewModel;
 using SuggestionBoard.Web.Models;
 
 namespace SuggestionBoard.Web.Controllers
 {
+    [AllowAnonymous]
     public class HomeController : Controller
     {
+        private ISuggestionService _suggestionService;
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, ISuggestionService suggestionService)
         {
+            _suggestionService = suggestionService;
             _logger = logger;
         }
 
-        public IActionResult Index()
+        [HttpGet]
+        public ActionResult<IAsyncEnumerable<SuggestionPaggingListVM>> Index(string sortOrder, string searchString, int pageNumber = 1)
         {
-            return View();
+            ViewData["CurrentSort"] = sortOrder.IsNullOrEmpty() ? "oldest" : sortOrder;
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["PageNumber"] = pageNumber;
+
+            var suggestions = _suggestionService.GetList(false, searchString, sortOrder, pageNumber, 5);
+
+            return View(suggestions);
         }
 
         public IActionResult Privacy()
