@@ -41,7 +41,7 @@ namespace SuggestionBoard.Core.Validation
                     return new ValidationResult(errorMessage);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return new ValidationResult(ErrorMessages.ErrorThrew);
             }

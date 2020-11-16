@@ -35,25 +35,38 @@ namespace SuggestionBoard.Data.ViewModel
     public sealed class SuggestionSaveVM : SaveVM
     {
         [DataType(DataType.Text)]
-        [Required, MinLength(5), MaxLength(250)]
+        [Required(ErrorMessage = "Title is required")]
+        [StringLength(maximumLength: 250, MinimumLength = 5, ErrorMessage = "Title cannot be longer than 250 characters and less than 5 characters")]
         public string Title { get; set; }
         [DataType(DataType.MultilineText)]
-        [Required, MinLength(5), MaxLength(2000)]
+        [Required(ErrorMessage = "Description is required")]
+        [StringLength(maximumLength: 2000, MinimumLength = 5, ErrorMessage = "Description cannot be longer than 2000 characters and less than 5 characters")]
         public string Description { get; set; }
         [Required, DefaultValue(SuggestionStatus.Created)]
-        public SuggestionStatus Status { get; set; }
-        [Range(0, int.MaxValue), DefaultValue(0)]
+        public SuggestionStatus Status { get; set; }        
         public int LikeAmount { get; set; }
-        [Range(0, int.MaxValue), DefaultValue(0)]
         public int DislikeAmount { get; set; }
-        public int TotalReaction {
-            get {
-                return DislikeAmount + LikeAmount;
+        public Guid CreateBy { get; set; }
+        public DateTime CreateDT { get; set; }
+    }
+
+    public sealed class SuggestionDetailVM
+    {
+        public Guid Id { get; set; }
+        public SuggestionSaveVM Rec { get; set; }
+
+        public int TotalReaction
+        {
+            get
+            {
+                return Rec.DislikeAmount + Rec.LikeAmount + (SuggestionComments != null ? SuggestionComments.Count : 0) * 2;
             }
         }
 
-        public List<SuggestionCommentVM> suggestionComments { get; set; }
-        public List<SuggestionReactionVM> suggestionReactions { get; set; }
+        public List<SuggestionCommentVM> SuggestionComments { get; set; }
+        public List<SuggestionReactionVM> SuggestionReactions { get; set; }
+
+        public bool CanEdit { get; set; }
 
         public string GeneralError { get; set; }
     }

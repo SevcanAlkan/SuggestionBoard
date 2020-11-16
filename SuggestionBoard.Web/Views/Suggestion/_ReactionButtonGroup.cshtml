@@ -1,0 +1,15 @@
+﻿@using SuggestionBoard.Core.Enum
+@using SuggestionBoard.Data.ViewModel
+@model Guid
+
+<div style="margin:0.5rem; float:right">
+    <a class="btn btn-sm btn-link" type="button" asp-action="Send"
+        asp-controller="SuggestionReaction"
+        asp-route-suggestionId="@Model"
+        asp-route-reaction="@UserReaction.Like">👍</a>
+
+    <a class="btn btn-sm btn-link" type="button" asp-action="Send"
+        asp-controller="SuggestionReaction"
+        asp-route-suggestionId="@Model"
+        asp-route-reaction="@UserReaction.Dislike">👎</a>
+</div>

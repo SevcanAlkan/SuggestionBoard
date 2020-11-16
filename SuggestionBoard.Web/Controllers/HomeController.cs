@@ -32,7 +32,7 @@ namespace SuggestionBoard.Web.Controllers
             ViewData["CurrentFilter"] = searchString;
             ViewData["PageNumber"] = pageNumber;
 
-            var suggestions = _suggestionService.GetList(false, searchString, sortOrder, pageNumber, 3);
+            var suggestions = _suggestionService.GetList(false, searchString, sortOrder, pageNumber, 5);
 
             return View(suggestions);
         }

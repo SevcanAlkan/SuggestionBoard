@@ -17,11 +17,11 @@ namespace SuggestionBoard.Web.Helper
             {
                 ipAddress = Dns.GetHostAddresses(new Uri("http://docker.for.win.localhost").Host)[0].ToString();
             }
-            catch (SocketException es)
+            catch (SocketException)
             {
                 //throw es;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 //throw e;                
             }

@@ -12,7 +12,7 @@ namespace SuggestionBoard.Data.SubStructure
 {
     public interface IRepository<T>
     {
-        Task<T> GetByID(Guid id);
+        Task<T> GetByIDAysnc(Guid id);
         IQueryable<T> Get();
         IQueryable<T> Query(bool isDeleted = false);
         void Add(T entity);
@@ -36,7 +36,7 @@ namespace SuggestionBoard.Data.SubStructure
             set { con = value; }
 
         }
-        public virtual async Task<T> GetByID(Guid id)
+        public virtual async Task<T> GetByIDAysnc(Guid id)
         {
             try
             {

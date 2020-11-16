@@ -34,48 +34,51 @@ namespace SuggestionBoard.Web.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<SuggestionSaveVM>> Detail(Guid? id = null)
+        public async Task<ActionResult<SuggestionDetailVM>> Detail(Guid? id = null)
         {
-            SuggestionSaveVM rec = new SuggestionSaveVM();
+            return View(await GetSuggestion(id));
+        }
 
-            if (id.IsNull())
-                return View(rec);
+        [HttpGet]
+        public async Task<ActionResult<SuggestionDetailVM>> DetailCommentCallBack(SuggestionCommentSaveVM vm)
+        {
+            ViewData["CommentFormData"] = vm;
 
-            var result = await _service.GetByIdAsync(id.Value);
+            return View("Detail", await GetSuggestion(vm.SuggestionId));
+        }
 
-            if (result != null)
-                rec = _mapper.Map<SuggestionSaveVM>(result);
-
-            return View(rec);
+        [HttpGet]
+        public async Task<ActionResult<SuggestionDetailVM>> DetailReactionCallBack(SuggestionReactionSaveVM vm)
+        {
+            return View("Detail", await GetSuggestion(vm.SuggestionId));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Detail(Guid id, SuggestionSaveVM record)
+        public async Task<ActionResult> Detail(Guid id, SuggestionDetailVM vm)
         {
-            if (id != record.Id)
-            {
-                ModelState.AddModelError("GeneralError", "Invalid attempt!");
-                return View(record);
-            }
+            //if (id != vm.Rec.Id)
+            //{
+            //    ModelState.AddModelError("GeneralError", "Invalid attempt!");
+            //    return View(vm);
+            //}
 
             if (!ModelState.IsValid)
             {
-                return View(record);
+                return View(vm);
             }
 
             APIResultVM result = new APIResultVM();
 
             var user = await _userManager.FindByEmailAsync(User.Identity.Name);
 
-            if (record.Id.IsNull() || record.Id == Guid.Empty
-                || id.IsNull() || id == Guid.Empty)
+            if (id.IsNull() || id == Guid.Empty)
             {
-                result = await _service.AddAsync(record, user.Id);
+                result = await _service.AddAsync(vm.Rec, user.Id);
             }
             else
             {
-                result = await _service.UpdateAsync(record.Id, record, user.Id);
+                result = await _service.UpdateAsync(id, vm.Rec, user.Id);
             }
 
             if (!result.IsSuccessful)
@@ -88,10 +91,36 @@ namespace SuggestionBoard.Web.Controllers
                     }
                 }
                 
-                return View(record);
+                return View(vm);
             }
             
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> Delete(Guid? id = null)
+        {            
+            if (id.IsNull())
+                return RedirectToAction("Index", "Home");
+
+            var user = await _userManager.FindByEmailAsync(User.Identity.Name);
+            var result = await _service.DeleteAsync(id.Value, user.Id, true);               
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        private async Task<SuggestionDetailVM> GetSuggestion(Guid? id = null)
+        {
+            var result = await _service.GetWithAdditionalData(id);
+            result.CanEdit = true;
+
+            if (result != null)
+            {
+                var user = await _userManager.FindByEmailAsync(User.Identity.Name);
+                result.CanEdit = user.Id == result.Rec.CreateBy;
+            }
+
+            return result;
         }
     }
 }

@@ -1,21 +1,18 @@
-﻿@using SuggestionBoard.Data.ViewModel;
-@model SuggestionSaveVM;
+﻿@using SuggestionBoard.Data.ViewModel
+@using SuggestionBoard.Core.Enum
+@model SuggestionDetailVM
 @{
     bool isNewRecord = Model == null || Model.Id == null || Model.Id == Guid.Empty;
 
-    if (isNewRecord)
-    {
-        ViewData["Title"] = "New Suggestion";
-    }
-    else
+    if (!isNewRecord && Model.CanEdit)
     {
         ViewData["Title"] = "Edit Suggestion";
     }
+    else
+    {
+        ViewData["Title"] = "New Suggestion";
+    }
 }
-
-<h1>Suggestion index</h1>
-
-<hr />
 
 @if (isNewRecord)
 {
@@ -23,34 +20,130 @@
 }
 else
 {
-    <h2>Edit Suggestion - [@Model.Id.ToString()]</h2>
+    <div class="row">
+        <div class="col-8">
+            <h2>@(Model.CanEdit? "Edit": "View") Suggestion <em class="text-muted h5">[@Model.Id.ToString()]</em></h2>
+        </div>
+        <div class="col-4">
+            @await Html.PartialAsync("_ReactionButtonGroup", Model.Id)
+        </div>
+    </div>
+
 }
 
-@using (Html.BeginForm("Detail"))
+@*<label for="canEdit">CanEdit</label>
+    <input id="canEdit" value="@(Model.CanEdit? "True" : "False")" />
+
+    <label for="isNewRecord">IsNewRecord</label>
+    <input id="isNewRecord" value="@(isNewRecord? "True" : "False")" />*@
+
+@{
+    int dayCount = (int)Math.Round((DateTime.UtcNow - Model.Rec.CreateDT).TotalDays);
+}
+
+<ul class="list-inline">
+    <li class="list-inline-item">@dayCount days ago</li>
+    <li class="list-inline-item">@Model.Rec.LikeAmount like</li>
+    <li class="list-inline-item">@Model.Rec.DislikeAmount dislike</li>
+    <li class="list-inline-item">@(Model.SuggestionComments !=null ? Model.SuggestionComments.Count.ToString() : "0") comment</li>
+    <li class="list-inline-item">@Model.TotalReaction reaction point</li>
+</ul>
+
+@if (Model.CanEdit || isNewRecord)
 {
-    @Html.AntiForgeryToken()
-    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-    @Html.ValidationMessageFor(model => model.GeneralError)
+    @using (Html.BeginForm("Detail"))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.ValidationMessageFor(model => model.GeneralError)
 
+        <div class="form-group">
+            @Html.LabelFor(model => model.Rec.Title)
+            @Html.EditorFor(model => model.Rec.Title, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.Rec.Title, "", new { @class = "text-danger" })
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Rec.Description)
+            @Html.EditorFor(model => model.Rec.Description, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.Rec.Description, "", new { @class = "text-danger" })
+        </div>
+
+        @Html.Hidden("Rec.Id", Model.Id)
+
+        <input type="submit" value="@(!isNewRecord? "Update": "Create")" class="btn btn-success btn-lg" />
+    }
+}
+else
+{
     <div class="form-group">
-        @Html.LabelFor(model => model.Title)
-        @Html.EditorFor(model => model.Title, new { htmlAttributes = new { @class = "form-control" } })
-        @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+        @Html.LabelFor(model => model.Rec.Title)
+        @Html.EditorFor(model => model.Rec.Title, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
     </div>
     <div class="form-group">
-        @Html.LabelFor(model => model.Description)
-        @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
-        @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+        @Html.LabelFor(model => model.Rec.Description)
+        @Html.EditorFor(model => model.Rec.Description, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
     </div>
-
-    <input type="submit" value="Create" class="btn btn-success btn-lg" />
 }
 
 <br />
 
 <div>
     @Html.ActionLink("Back to List", "Index", "Home")
+    <br />
+    @if (!isNewRecord && Model.CanEdit)
+    {
+        @Html.ActionLink("Delete", "Delete", "Suggestion", new { id = Model.Id })
+    }
 </div>
+
+<br />
+
+@if (!isNewRecord)
+{
+    @if (!isNewRecord)
+    {
+        <div class="row">
+            <div class="col-8">
+                <p class="h5">Comments</p>
+
+                <div class="row">
+                    @await Html.PartialAsync("_CommentList", Model.SuggestionComments)
+                </div>
+
+                <div class="row">
+
+                    @{
+                        SuggestionCommentSaveVM commentModel;
+
+                        if (ViewData["CommentFormData"] != null && ViewData["CommentFormData"] is SuggestionCommentSaveVM)
+                        {
+                            commentModel = (SuggestionCommentSaveVM)ViewData["CommentFormData"];
+                        }
+                        else
+                        {
+                            commentModel = new SuggestionCommentSaveVM();
+                        }
+
+                        commentModel.SuggestionId = Model.Id;
+                    }
+
+                    @await Html.PartialAsync("_CommentForm", commentModel)
+
+                </div>
+
+            </div>
+            <div class="col-4">
+                <p class="h5">Likes & Dislikes</p>
+
+                <div class="row">
+                    @await Html.PartialAsync("_ReactionList", Model.SuggestionReactions)
+                </div>
+
+            </div>
+        </div>
+    }
+}
+
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

@@ -6,6 +6,7 @@
     <UserSecretsId>d4cd6c50-205b-413f-9aaf-29dcf1ff96d3</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <GenerateRuntimeConfigurationFiles>True</GenerateRuntimeConfigurationFiles>
+    <AnalysisLevel>4</AnalysisLevel>
   </PropertyGroup>
 
   <ItemGroup>
