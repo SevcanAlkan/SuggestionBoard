@@ -35,5 +35,6 @@ namespace SuggestionBoard.Data
         public virtual DbSet<SuggestionBase> Suggestions { get; set; }
         public virtual DbSet<SuggestionReaction> SuggestionReactions { get; set; }
         public virtual DbSet<SuggestionComment> SuggestionComments { get; set; }
+        public virtual DbSet<Category> Categories { get; set; }
     }
 }

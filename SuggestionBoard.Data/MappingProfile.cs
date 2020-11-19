@@ -12,6 +12,7 @@ namespace SuggestionBoard.Data
         public MappingProfile()
         {
             CreateMap<Suggestion, SuggestionVM>()
+                .ForMember(m => m.CategoryName, o => o.MapFrom(s => s.Category.Name))
                 .ForMember(m => m.CreateById, o => o.MapFrom(s => s.CreateBy))
                 .ForMember(m => m.CreateDateTime, o => o.MapFrom(s => s.CreateDT))
                 .ForMember(m => m.TotalReaction, o => o.MapFrom(s => s.DislikeAmount + s.LikeAmount + ((s.SuggestionComments != null ? s.SuggestionComments.Count : 0) * 2)))
@@ -32,13 +33,23 @@ namespace SuggestionBoard.Data
 
 
             CreateMap<SuggestionComment, SuggestionCommentVM>();
-               // .ForMember(m => m.CreateBy, o => o.MapFrom(s => s.CreateBy));
+            // .ForMember(m => m.CreateBy, o => o.MapFrom(s => s.CreateBy));
             CreateMap<SuggestionCommentVM, SuggestionCommentSaveVM>().ReverseMap();
             CreateMap<SuggestionComment, SuggestionCommentSaveVM>().ReverseMap();
 
             CreateMap<SuggestionReaction, SuggestionReactionVM>().ReverseMap();
             CreateMap<SuggestionReactionVM, SuggestionReactionSaveVM>().ReverseMap();
             CreateMap<SuggestionReaction, SuggestionReactionSaveVM>().ReverseMap();
+
+            CreateMap<Category, CategoryVM>()
+                .ForMember(m => m.CreateById, o => o.MapFrom(s => s.CreateBy))
+                .ForMember(m => m.CreateDateTime, o => o.MapFrom(s => s.CreateDT));
+
+            CreateMap<CategorySaveVM, Category>().ReverseMap()
+                .ForMember(m => m.CreateBy, o => o.Ignore())
+                .ForMember(m => m.CreateDT, o => o.Ignore());
+            CreateMap<CategoryVM, CategorySaveVM>().ReverseMap();
+            CreateMap<Category, CategorySaveVM>().ReverseMap();
 
             CreateMap<User, ProfileVM>();
         }

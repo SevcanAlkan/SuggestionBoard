@@ -33,7 +33,7 @@
                             <a asp-action="Profile" asp-controller="User" asp-route-id="@item.CreateById">@item.CreateByName</a> sent
                         </div>
                         <div class="card-body">
-                            <h5 class="card-title">@item.Title</h5>
+                            <h5 class="card-title">@item.Title <span class="badge badge-warning">@item.CategoryName</span></h5>
                             <p class="card-text text-muted"><em>@item.Description</em></p>
                             <a class="btn btn-primary" asp-action="Detail" asp-controller="Suggestion" asp-route-id="@item.Id">Open Details</a>
                         </div>

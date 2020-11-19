@@ -98,6 +98,7 @@ namespace SuggestionBoard.Web
             services.AddTransient<IUserService, UserService>();
             services.AddTransient<ISuggestionReactionService, SuggestionReactionService>();
             services.AddTransient<ISuggestionCommentService, SuggestionCommentService>();
+            services.AddTransient<ICategoryService, CategoryService>();
             services.AddTransient(typeof(IBaseService<,,>), typeof(BaseService<,,>));
 
             #endregion
@@ -131,6 +132,20 @@ namespace SuggestionBoard.Web
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            app.Use(async (ctx, next) =>
+            {
+                await next();
+
+                if (ctx.Response.StatusCode == 404 && !ctx.Response.HasStarted)
+                {
+                    //Re-execute the request so the user gets the error page
+                    string originalPath = ctx.Request.Path.Value;
+                    ctx.Items["originalPath"] = originalPath;
+                    ctx.Request.Path = "/404";
+                    await next();
+                }
+            });
 
             app.UseRouting();
 

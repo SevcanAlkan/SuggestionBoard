@@ -45,7 +45,7 @@ namespace SuggestionBoard.Data.Service
 
         #region Methods
 
-        public async Task<APIResultVM> GetProfileData(Guid userId, Guid currentUserId, string sortOrder = "", int pageNumber = 1, int pageItemCount = 10)
+        public async Task<APIResultVM> GetProfileData(Guid userId, Guid currentUserId, string sortOrder = "", int pageNumber = 1, int pageItemCount = 10, Guid? categoryId = null)
         {
             if (userId == null || userId == Guid.Empty)
                 APIResult.CreateVM();
@@ -60,7 +60,7 @@ namespace SuggestionBoard.Data.Service
             model.Suggestion = new SuggestionPaggingListVM();
             model.Suggestion.Pagging = new PaggingVM();
 
-            model.Suggestion.Records = _suggestionService.GetAllAsync(a => a.CreateBy == userId, true, sortOrder, pageNumber, pageItemCount).Result;
+            model.Suggestion.Records = _suggestionService.GetAllAsync(a => a.CreateBy == userId, true, sortOrder, pageNumber, pageItemCount, categoryId).Result;
             model.Comments = await _suggestionCommentService.GetCommentsOfUser(userId);
             model.Reactions = await _suggestionReactionService.GetReactionsOfUser(userId);
 
@@ -88,6 +88,6 @@ namespace SuggestionBoard.Data.Service
 
     public interface IUserService
     {
-        Task<APIResultVM> GetProfileData(Guid userId, Guid currentUserId, string sortOrder = "", int pageNumber = 1, int pageItemCount = 10);
+        Task<APIResultVM> GetProfileData(Guid userId, Guid currentUserId, string sortOrder = "", int pageNumber = 1, int pageItemCount = 10, Guid? categoryId = null);
     }
 }
