@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SuggestionBoard.Core.Helper;
+using SuggestionBoard.Core.Validation;
 using SuggestionBoard.Core.ViewModel;
 using SuggestionBoard.Data.SubStructure;
 using SuggestionBoard.Data.ViewModel;
@@ -44,6 +45,47 @@ namespace SuggestionBoard.Data.Service
         #endregion
 
         #region Methods
+
+        public UserPaggingListVM GetList(string searchText = "", int pageNumber = 1, int pageItemCount = 10)
+        {
+            if (!searchText.IsNullOrEmpty())
+                searchText = searchText.Trim().ToUpper();
+
+            UserPaggingListVM result = new UserPaggingListVM();
+
+            var query = _con.Set<User>().Where(a => searchText.IsNullOrEmpty() || a.UserName.Contains(searchText)).AsNoTracking().OrderBy(a => a.UserName).AsQueryable();
+
+            if (pageNumber > 1)
+                query = query.Skip((pageNumber - 1) * pageItemCount);
+
+            result.Records = (from u in query
+                            select new UserVM() {
+                                Id = u.Id,
+                                PictureUrl = u.PictureUrl,
+                                Name = u.UserName,
+                                SuggetionCount = (from s in _con.Set<Suggestion>().AsNoTracking()
+                                                where s.CreateBy == u.Id
+                                                select s).Count(),
+                                CommentCount = (from s in _con.Set<SuggestionComment>().AsNoTracking()
+                                                where s.CreateBy == u.Id
+                                                select s).Count(),
+                                ReactionCount = (from s in _con.Set<SuggestionReaction>().AsNoTracking()
+                                                where s.CreateBy == u.Id
+                                                select s).Count()
+                            }).Take(pageItemCount).ToList();
+
+            #region Next Page Check
+            query = _con.Set<User>().AsNoTracking().AsQueryable();
+
+            if (!searchText.IsNullOrEmpty())
+                query = query.Where(a => a.UserName.ToUpper().Contains(searchText)).AsQueryable();
+
+            result.Pagging = new PaggingVM();
+            result.Pagging.IsNextPageExist = query.Skip((pageNumber * pageItemCount)).Take(1).Count() == 1;
+            #endregion
+
+            return result;
+        }
 
         public async Task<APIResultVM> GetProfileData(Guid userId, Guid currentUserId, string sortOrder = "", int pageNumber = 1, int pageItemCount = 10, Guid? categoryId = null)
         {
@@ -89,5 +131,6 @@ namespace SuggestionBoard.Data.Service
     public interface IUserService
     {
         Task<APIResultVM> GetProfileData(Guid userId, Guid currentUserId, string sortOrder = "", int pageNumber = 1, int pageItemCount = 10, Guid? categoryId = null);
+        UserPaggingListVM GetList(string searchText = "", int pageNumber = 1, int pageItemCount = 10);
     }
 }
