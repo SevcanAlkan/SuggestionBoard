@@ -17,11 +17,11 @@
             </div>
         </div>
 
-        @await Html.PartialAsync("_ListToolbar", new RouteVM() { ControllerName = "Home", ActionName = "Index" })
+        @await Html.PartialAsync("_ListToolbar", Model.ToolbarData)
 
         @await Html.PartialAsync("_SuggestionList", Model.Records)
 
-        @await Html.PartialAsync("_PaggingButtonGroup", Model.Pagging)
+        @await Html.PartialAsync("../Shared/_PaggingButtonGroup", Model.Pagging)
 
     </div>
 

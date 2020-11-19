@@ -1,5 +1,5 @@
 ﻿@using SuggestionBoard.Data.ViewModel
-@model RouteVM
+@model ToolbarVM
 
 <div class="row">
     <div class="col">
@@ -10,6 +10,7 @@
 
                 <a class="btn btn-sm btn-link" type="button" asp-action="@Model.ActionName"
                    asp-controller="@Model.ControllerName"
+                   asp-route-categoryId="@(ViewData["Category"])"
                    asp-route-sortOrder="newest"
                    asp-route-searchString="@ViewData["CurrentFilter"]"
                    asp-route-pageNumber="1"
@@ -17,6 +18,7 @@
                             "font-weight: bold !important" : "")">Newest</a>
                 <a class="btn btn-sm btn-link" type="button" asp-action="@Model.ActionName"
                    asp-controller="@Model.ControllerName"
+                   asp-route-categoryId="@(ViewData["Category"])"
                    asp-route-sortOrder="oldest"
                    asp-route-searchString="@ViewData["CurrentFilter"]"
                    asp-route-pageNumber="1"
@@ -24,6 +26,7 @@
                             "font-weight: bold !important" : "")">Oldest</a>
                 <a class="btn btn-sm btn-link" type="button" asp-action="@Model.ActionName"
                    asp-controller="@Model.ControllerName"
+                   asp-route-categoryId="@(ViewData["Category"])"
                    asp-route-sortOrder="comment"
                    asp-route-searchString="@ViewData["CurrentFilter"]"
                    asp-route-pageNumber="1"
@@ -31,6 +34,7 @@
                             "font-weight: bold !important" : "")>Most Commented</a>
                 <a class="btn btn-sm btn-link" type="button" asp-action="@Model.ActionName"
                    asp-controller="@Model.ControllerName"
+                   asp-route-categoryId="@(ViewData["Category"])"
                    asp-route-sortOrder="reaction"
                    asp-route-searchString="@ViewData["CurrentFilter"]"
                    asp-route-pageNumber="1"
@@ -38,6 +42,7 @@
                             "font-weight: bold !important" : "")">Most Reacted</a>
                 <a class="btn btn-sm btn-link" type="button" asp-action="@Model.ActionName"
                    asp-controller="@Model.ControllerName"
+                   asp-route-categoryId="@(ViewData["Category"])"
                    asp-route-sortOrder="like"
                    asp-route-searchString="@ViewData["CurrentFilter"]"
                    asp-route-pageNumber="1"
@@ -45,11 +50,60 @@
                             "font-weight: bold !important" : "")">Most Liked</a>
 
             </form>
-            <form asp-controller="@Model.ControllerName" asp-action="@Model.ActionName" method="get" class="form-inline"
-                  asp-route-sortOrder="@(ViewData["CurrentSort"])">
-                <input class="form-control mr-sm-2" type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
-                <input class="btn btn-outline-success my-2 my-sm-0" type="submit" value="Search" />
-                <a asp-controller="@Model.ControllerName" asp-action="@Model.ActionName" style="margin-left: 0.5rem">Reset sorting and filters</a>
+
+            @{
+                var selectedCategory = ViewData["Category"] != null ? Model.Categories.Where(a => a.Id == ViewData["Category"] as Guid?).FirstOrDefault() : null;
+
+                string categoryTitle = "Category";
+
+                if (selectedCategory != null)
+                {
+                    categoryTitle = selectedCategory.Text;
+                }
+            }
+
+            @if (Model.Categories != null && Model.Categories.Count > 0)
+            {
+                <form class="form-inline">
+                    <div id="category-dropdown" class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button"
+                                id="category-dropdown-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            @categoryTitle
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="category-dropdown-button">
+                            <a class="dropdown-item" asp-action="@Model.ActionName"
+                               asp-controller="@Model.ControllerName"
+                               asp-route-sortOrder="@ViewData["CurrentSort"]"
+                               asp-route-searchString="@ViewData["CurrentFilter"]"
+                               asp-route-pageNumber="1">-Select-</a>
+
+                            @foreach (var item in Model.Categories)
+                            {
+                                <a class="dropdown-item" asp-action="@Model.ActionName"
+                                   id="@item.Id"
+                                   asp-controller="@Model.ControllerName"
+                                   asp-route-sortOrder="@ViewData["CurrentSort"]"
+                                   asp-route-searchString="@ViewData["CurrentFilter"]"
+                                   asp-route-pageNumber="1"
+                                   asp-route-categoryId="@item.Id">@item.Text</a>
+                            }
+
+                        </div>
+                    </div>
+                </form>
+            }
+            @if (Model.ShowSearch)
+            {
+                <form asp-controller="@Model.ControllerName" asp-action="@Model.ActionName" method="get" class="form-inline"
+                      asp-route-sortOrder="@(ViewData["CurrentSort"])"
+                      asp-route-categoryId="@(ViewData["Category"])">
+                    <input class="form-control mr-sm-2" type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+                    <input class="btn btn-outline-success my-2 my-sm-0" type="submit" value="Search" />
+                </form>
+            }
+
+            <form class="form-inline">
+                <a asp-controller="@Model.ControllerName" asp-action="@Model.ActionName" style="margin-left: 0.5rem">Clear</a>
             </form>
         </nav>
 

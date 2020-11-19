@@ -21,6 +21,10 @@ namespace SuggestionBoard.Domain
         public int LikeAmount { get; set; }
         [Range(0, int.MaxValue), DefaultValue(0)]
         public int DislikeAmount { get; set; }
+
+        [Required]
+        [GuidValidation]
+        public Guid CategoryId { get; set; }
     }
 
     public class Suggestion : SuggestionBase
@@ -29,6 +33,7 @@ namespace SuggestionBoard.Domain
 
         public virtual ICollection<SuggestionComment> SuggestionComments { get; set; }
         public virtual ICollection<SuggestionReaction> SuggestionReactions { get; set; }
+        public virtual Category Category { get; set; }
 
         public Suggestion()
         {

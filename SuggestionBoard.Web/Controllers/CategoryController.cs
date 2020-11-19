@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,50 +19,57 @@ using SuggestionBoard.Web.Models;
 namespace SuggestionBoard.Web.Controllers
 {
     [Authorize]
-    public class SuggestionController : Controller
+    public class CategoryController : Controller
     {
-        private readonly ISuggestionService _service;
-        private readonly ICategoryService _categoryService;
+        private readonly ICategoryService _service;
         private readonly IMapper _mapper;
-        private readonly ILogger<SuggestionController> _logger;
+        private readonly ILogger<CategoryController> _logger;
         private readonly UserManager<User> _userManager;
 
-        public SuggestionController(ILogger<SuggestionController> logger, ISuggestionService service, IMapper mapper, UserManager<User> userManager, ICategoryService categoryService)
+        public CategoryController(ILogger<CategoryController> logger, ICategoryService service, IMapper mapper, UserManager<User> userManager)
         {
             _service = service;
             _logger = logger;
             _mapper = mapper;
             _userManager = userManager;
-            _categoryService = categoryService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<SuggestionDetailVM>> Detail(Guid? id = null)
+        public async Task<ActionResult<CategoryPaggingListVM>> Index(int pageNumber = 1)
         {
-            return View(await GetSuggestion(id));
+            ViewData["PageNumber"] = pageNumber;
+
+            var result = _service.GetList(false, pageNumber, 10);
+            result.Pagging.ActionName = "Index";
+            result.Pagging.ControllerName = "Category";
+
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+            result.CurrentUserId = user != null ? user.Id : Guid.Empty;
+
+            return View(result);
         }
 
         [HttpGet]
-        public async Task<ActionResult<SuggestionDetailVM>> DetailCommentCallBack(SuggestionCommentSaveVM vm)
+        public async Task<ActionResult<CategoryDetailVM>> Detail(Guid? id = null)
         {
-            ViewData["CommentFormData"] = vm;
+            var result = await _service.GetForEdit(id);
+            result.CanEdit = true;
 
-            return View("Detail", await GetSuggestion(vm.SuggestionId));
+            if (result != null)
+            {
+                var user = await _userManager.FindByNameAsync(User.Identity.Name);
+                result.CanEdit = user.Id == result.Rec.CreateBy;
+            }
+
+            return View(result);
         }
-
-        [HttpGet]
-        public async Task<ActionResult<SuggestionDetailVM>> DetailReactionCallBack(SuggestionReactionSaveVM vm)
-        {
-            return View("Detail", await GetSuggestion(vm.SuggestionId));
-        }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Detail(Guid id, SuggestionDetailVM vm)
+        public async Task<ActionResult> Detail(Guid id, CategoryDetailVM vm)
         {
             if (!ModelState.IsValid)
             {
-                vm.Categories = _categoryService.GetSelectList();
                 return View(vm);
             }
 
@@ -91,7 +99,7 @@ namespace SuggestionBoard.Web.Controllers
                 return View(vm);
             }
             
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Category");
         }
 
         [HttpGet]
@@ -103,21 +111,7 @@ namespace SuggestionBoard.Web.Controllers
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
             var result = await _service.DeleteAsync(id.Value, user.Id, true);               
 
-            return RedirectToAction("Index", "Home");
-        }
-
-        private async Task<SuggestionDetailVM> GetSuggestion(Guid? id = null)
-        {
-            var result = await _service.GetWithAdditionalData(id);
-            result.CanEdit = true;
-
-            if (result != null)
-            {
-                var user = await _userManager.FindByNameAsync(User.Identity.Name);
-                result.CanEdit = user.Id == result.Rec.CreateBy;
-            }
-
-            return result;
+            return RedirectToAction("Index", "Category");
         }
     }
 }

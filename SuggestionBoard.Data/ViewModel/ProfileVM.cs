@@ -18,5 +18,7 @@ namespace SuggestionBoard.Data.ViewModel
         public SuggestionPaggingListVM Suggestion { get; set; }
         public IList<ProfileReactionVM> Reactions { get; set; }
         public IList<ProfileCommentVM> Comments { get; set; }
+
+        public ToolbarVM ToolbarData { get; set; }
     }
 }

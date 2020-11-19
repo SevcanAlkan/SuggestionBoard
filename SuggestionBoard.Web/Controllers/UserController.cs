@@ -22,31 +22,42 @@ namespace SuggestionBoard.Web.Controllers
         private readonly ILogger<UserController> _logger;
         private readonly UserManager<User> _userManager;
         private readonly IUserService _service;
+        private readonly ICategoryService _categoryService;
 
         public UserController(ILogger<UserController> logger, IMapper mapper, UserManager<User> userManager,
-            IUserService service)
+            IUserService service, ICategoryService categoryService)
         {
             _logger = logger;
             _mapper = mapper;
             _userManager = userManager;
             _service = service;
+            _categoryService = categoryService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<ProfileVM>> Profile(Guid? id = null, string sortOrder = "newest", int pageNumber = 1)
+        public async Task<ActionResult<ProfileVM>> Profile(Guid? id = null, string sortOrder = "newest", int pageNumber = 1, Guid? categoryId = null)
         {
             ViewData["CurrentSort"] = sortOrder;
             ViewData["PageNumber"] = pageNumber;
+            ViewData["Category"] = categoryId;
 
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
 
             if (id == null || id == Guid.Empty)
                 id = user.Id;
 
-            var vm = await _service.GetProfileData(id.Value, user.Id, sortOrder, pageNumber, 5);
+            var vm = await _service.GetProfileData(id.Value, user.Id, sortOrder, pageNumber, 5, categoryId);
 
             if (!vm.IsSuccessful)
                 return RedirectToAction("Index", "Home");
+
+            ToolbarVM toolbarVM = new ToolbarVM();
+            toolbarVM.ControllerName = "User";
+            toolbarVM.ActionName = "Profile";
+            toolbarVM.ShowSearch = false;
+            toolbarVM.Categories = _categoryService.GetSelectList();
+
+            (vm.Rec as ProfileVM).ToolbarData = toolbarVM;
 
             return View(vm.Rec);
         }

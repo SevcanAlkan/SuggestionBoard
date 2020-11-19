@@ -37,7 +37,7 @@ namespace SuggestionBoard.Data.Service
 
         #region Methods
 
-        public SuggestionPaggingListVM GetList(bool showIsDeleted = false, string searchText = "", string sortOrder = "", int pageNumber = 1, int pageItemCount = 10)
+        public SuggestionPaggingListVM GetList(bool showIsDeleted = false, string searchText = "", string sortOrder = "", int pageNumber = 1, int pageItemCount = 10, Guid? categoryId = null)
         {
             if (!searchText.IsNullOrEmpty())
                 searchText = searchText.Trim().ToUpper();
@@ -46,7 +46,7 @@ namespace SuggestionBoard.Data.Service
 
             result.Records = GetAllAsync(a => a.Title.ToUpper().Contains(searchText)
                     || a.Description.ToUpper().Contains(searchText),
-                    true, sortOrder, pageNumber, pageItemCount).Result;
+                    true, sortOrder, pageNumber, pageItemCount, categoryId).Result;
 
             #region Next Page Check
             var query = Repository.Query(showIsDeleted).AsNoTracking().AsQueryable();
@@ -75,6 +75,13 @@ namespace SuggestionBoard.Data.Service
         {
             SuggestionDetailVM vm = new SuggestionDetailVM();
             vm.Rec = new SuggestionSaveVM();
+
+            vm.Categories = _con.Set<Category>().Where(a => !a.IsDeleted)
+                .Select(s => new SelectListVM()
+                {
+                    Id = s.Id,
+                    Text = s.Name
+                }).OrderBy(o => o.Text).AsNoTracking().ToList();
 
             if (id.IsNullOrEmpty())
                 return vm;
@@ -132,17 +139,20 @@ namespace SuggestionBoard.Data.Service
             }
         }
 
-        public async Task<List<SuggestionVM>> GetAllAsync(Expression<Func<Suggestion, bool>> expr = null, bool asNoTracking = true, string sortOrder = "", int pageNumber = 1, int pageItemCount = 10)
+        public async Task<List<SuggestionVM>> GetAllAsync(Expression<Func<Suggestion, bool>> expr = null, bool asNoTracking = true, string sortOrder = "", int pageNumber = 1, int pageItemCount = 10, Guid? categoryId = null)
         {
             try
             {
-                var query = Repository.Query();
+                var query = Repository.Query().Include(i => i.Category).AsQueryable();
 
-                if(expr != null)
+                if (expr != null)
                     query = query.Where(expr);
 
                 if (asNoTracking)
                     query = query.AsNoTracking();
+
+                if (!categoryId.IsNullOrEmpty())
+                    query = query.Where(a => a.CategoryId == categoryId.Value);
 
                 switch (sortOrder)
                 {
@@ -180,9 +190,9 @@ namespace SuggestionBoard.Data.Service
 
     public interface ISuggestionService : IBaseService<SuggestionSaveVM, SuggestionVM, Suggestion>
     {
-        SuggestionPaggingListVM GetList(bool showIsDeleted = false, string searchText = "", string sortOrder = "", int pageNumber = 1, int pageItemCount = 10);
+        SuggestionPaggingListVM GetList(bool showIsDeleted = false, string searchText = "", string sortOrder = "", int pageNumber = 1, int pageItemCount = 10, Guid? categoryId = null);
         Task<SuggestionDetailVM> GetWithAdditionalData(Guid? id);
         Task UpdateReactionCount(Guid? id, UserReaction reaction);
-        Task<List<SuggestionVM>> GetAllAsync(Expression<Func<Suggestion, bool>> expr = null, bool asNoTracking = true, string sortOrder = "", int pageNumber = 1, int pageItemCount = 10);
+        Task<List<SuggestionVM>> GetAllAsync(Expression<Func<Suggestion, bool>> expr = null, bool asNoTracking = true, string sortOrder = "", int pageNumber = 1, int pageItemCount = 10, Guid? categoryId = null);
     }
 }
