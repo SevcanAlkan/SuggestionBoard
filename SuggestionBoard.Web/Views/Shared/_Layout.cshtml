@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] - Suggestion Board</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
     <header>
@@ -32,7 +33,7 @@
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-light" asp-area="" asp-controller="User" asp-action="Profile">@User.Identity.Name</a>
+                                <a class="nav-link text-light" asp-area="" asp-controller="User" asp-action="Profile" asp-route-id="">@User.Identity.Name</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-light" asp-area="" asp-controller="Authentication" asp-action="Logout">Logout</a>

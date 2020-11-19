@@ -70,7 +70,7 @@ namespace SuggestionBoard.Web.Controllers
 
             APIResultVM result = new APIResultVM();
 
-            var user = await _userManager.FindByEmailAsync(User.Identity.Name);
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
 
             if (id.IsNull() || id == Guid.Empty)
             {
@@ -103,7 +103,7 @@ namespace SuggestionBoard.Web.Controllers
             if (id.IsNull())
                 return RedirectToAction("Index", "Home");
 
-            var user = await _userManager.FindByEmailAsync(User.Identity.Name);
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
             var result = await _service.DeleteAsync(id.Value, user.Id, true);               
 
             return RedirectToAction("Index", "Home");
@@ -116,7 +116,7 @@ namespace SuggestionBoard.Web.Controllers
 
             if (result != null)
             {
-                var user = await _userManager.FindByEmailAsync(User.Identity.Name);
+                var user = await _userManager.FindByNameAsync(User.Identity.Name);
                 result.CanEdit = user.Id == result.Rec.CreateBy;
             }
 

@@ -1,0 +1,59 @@
+﻿@using SuggestionBoard.Data.ViewModel
+@model RouteVM
+
+<div class="row">
+    <div class="col">
+
+        <nav class="navbar navbar-light bg-light">
+            <a class="navbar-brand" href="#">Sorting</a>
+            <form class="form-inline sort-options">
+
+                <a class="btn btn-sm btn-link" type="button" asp-action="@Model.ActionName"
+                   asp-controller="@Model.ControllerName"
+                   asp-route-sortOrder="newest"
+                   asp-route-searchString="@ViewData["CurrentFilter"]"
+                   asp-route-pageNumber="1"
+                   style="@(ViewData["CurrentSort"] != null && ViewData["CurrentSort"].ToString().ToUpper() == "NEWEST" ?
+                            "font-weight: bold !important" : "")">Newest</a>
+                <a class="btn btn-sm btn-link" type="button" asp-action="@Model.ActionName"
+                   asp-controller="@Model.ControllerName"
+                   asp-route-sortOrder="oldest"
+                   asp-route-searchString="@ViewData["CurrentFilter"]"
+                   asp-route-pageNumber="1"
+                   style="@(ViewData["CurrentSort"] != null && ViewData["CurrentSort"].ToString().ToUpper() == "OLDEST" ?
+                            "font-weight: bold !important" : "")">Oldest</a>
+                <a class="btn btn-sm btn-link" type="button" asp-action="@Model.ActionName"
+                   asp-controller="@Model.ControllerName"
+                   asp-route-sortOrder="comment"
+                   asp-route-searchString="@ViewData["CurrentFilter"]"
+                   asp-route-pageNumber="1"
+                   style=@(ViewData["CurrentSort"] != null && ViewData["CurrentSort"].ToString().ToUpper() == "COMMENT"?
+                            "font-weight: bold !important" : "")>Most Commented</a>
+                <a class="btn btn-sm btn-link" type="button" asp-action="@Model.ActionName"
+                   asp-controller="@Model.ControllerName"
+                   asp-route-sortOrder="reaction"
+                   asp-route-searchString="@ViewData["CurrentFilter"]"
+                   asp-route-pageNumber="1"
+                   style="@(ViewData["CurrentSort"] != null && ViewData["CurrentSort"].ToString().ToUpper() == "REACTION" ?
+                            "font-weight: bold !important" : "")">Most Reacted</a>
+                <a class="btn btn-sm btn-link" type="button" asp-action="@Model.ActionName"
+                   asp-controller="@Model.ControllerName"
+                   asp-route-sortOrder="like"
+                   asp-route-searchString="@ViewData["CurrentFilter"]"
+                   asp-route-pageNumber="1"
+                   style="@(ViewData["CurrentSort"] != null && ViewData["CurrentSort"].ToString().ToUpper() == "LIKE" ?
+                            "font-weight: bold !important" : "")">Most Liked</a>
+
+            </form>
+            <form asp-controller="@Model.ControllerName" asp-action="@Model.ActionName" method="get" class="form-inline"
+                  asp-route-sortOrder="@(ViewData["CurrentSort"])">
+                <input class="form-control mr-sm-2" type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+                <input class="btn btn-outline-success my-2 my-sm-0" type="submit" value="Search" />
+                <a asp-controller="@Model.ControllerName" asp-action="@Model.ActionName" style="margin-left: 0.5rem">Reset sorting and filters</a>
+            </form>
+        </nav>
+
+    </div>
+</div>
+
+<br />

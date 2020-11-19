@@ -41,7 +41,7 @@ namespace SuggestionBoard.Web.Controllers
                 return RedirectToAction("DetailCommentCallBack", "Suggestion", vm);
             }
 
-            var user = await _userManager.FindByEmailAsync(User.Identity.Name);
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
             bool isSuggestionExist = await _suggestionService.AnyAsync(vm.SuggestionId);
 
             if (isSuggestionExist && user != null)

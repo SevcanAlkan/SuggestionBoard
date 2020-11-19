@@ -20,6 +20,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Serilog.Core;
 using Microsoft.Extensions.Logging;
+using System.IO;
+using Microsoft.Extensions.FileProviders;
 
 namespace SuggestionBoard.Web
 {
@@ -93,6 +95,7 @@ namespace SuggestionBoard.Web
             services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
 
             services.AddTransient<ISuggestionService, SuggestionService>();
+            services.AddTransient<IUserService, UserService>();
             services.AddTransient<ISuggestionReactionService, SuggestionReactionService>();
             services.AddTransient<ISuggestionCommentService, SuggestionCommentService>();
             services.AddTransient(typeof(IBaseService<,,>), typeof(BaseService<,,>));
@@ -115,7 +118,16 @@ namespace SuggestionBoard.Web
                 app.UseHsts();
             }
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                Path.Combine(env.ContentRootPath, "StaticFiles")),
+                RequestPath = "/StaticFiles",
+                OnPrepareResponse = ctx =>
+                {
+                    ctx.Context.Response.Headers.Append("Cache-Control", $"public, max-age={600}");
+                }
+            });
 
             app.UseAuthentication();
             app.UseAuthorization();

@@ -1,0 +1,58 @@
+﻿@using SuggestionBoard.Data.ViewModel
+@model List<SuggestionVM>
+
+<div class="row">
+    <div class="col-12">
+        @if ((Model == null || !Model.Any()) && ViewData["CurrentFilter"] == null)
+        {
+            <div class="jumbotron jumbotron-fluid">
+                <div class="container">
+                    <h1 class="display-4">There is no any suggestion 😢</h1>
+                    <p class="lead">But if you want you can send your suggestion! Then, people can see and react to your suggestion. 🌝</p>
+                </div>
+            </div>
+        }
+        else
+        {
+
+            @if (Model.Count == 0)
+            {
+                <div class="jumbotron jumbotron-fluid">
+                    <div class="container">
+                        <h1 class="display-4">There is no any suggestion 😢</h1>
+                        <p class="lead">Try to search different keywords or clean filters</p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                @foreach (SuggestionVM item in Model)
+                {
+                    <div class="card text-center">
+                        <div class="card-header">
+                            <a asp-action="Profile" asp-controller="User" asp-route-id="@item.CreateById">@item.CreateByName</a> sent
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">@item.Title</h5>
+                            <p class="card-text text-muted"><em>@item.Description</em></p>
+                            <a class="btn btn-primary" asp-action="Detail" asp-controller="Suggestion" asp-route-id="@item.Id">Open Details</a>
+                        </div>
+                        <div class="card-footer text-muted">
+
+                            @{
+                                int dayCount = (int)Math.Round((DateTime.UtcNow - item.CreateDateTime).TotalDays);
+                            }
+
+                            @dayCount days ago | @item.LikeAmount like | @item.CommentCount comment | @item.TotalReaction reaction point
+
+                        </div>
+                    </div>
+
+                    <br />
+                }
+
+
+            }
+        }
+    </div>
+</div>

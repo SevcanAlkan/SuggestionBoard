@@ -26,13 +26,15 @@ namespace SuggestionBoard.Web.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IAsyncEnumerable<SuggestionPaggingListVM>> Index(string sortOrder, string searchString, int pageNumber = 1)
+        public ActionResult<IAsyncEnumerable<SuggestionPaggingListVM>> Index(string sortOrder = "newest", string searchString = "", int pageNumber = 1)
         {
-            ViewData["CurrentSort"] = sortOrder.IsNullOrEmpty() ? "oldest" : sortOrder;
+            ViewData["CurrentSort"] = sortOrder;
             ViewData["CurrentFilter"] = searchString;
             ViewData["PageNumber"] = pageNumber;
 
             var suggestions = _suggestionService.GetList(false, searchString, sortOrder, pageNumber, 5);
+            suggestions.Pagging.ActionName = "Index";
+            suggestions.Pagging.ControllerName = "Home";
 
             return View(suggestions);
         }

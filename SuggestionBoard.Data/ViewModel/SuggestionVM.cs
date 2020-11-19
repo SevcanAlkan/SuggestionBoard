@@ -29,7 +29,7 @@ namespace SuggestionBoard.Data.ViewModel
     {
         public List<SuggestionVM> Records { get; set; }
 
-        public bool IsNextPageExist { get; set; }
+        public PaggingVM Pagging { get; set; }
     }
 
     public sealed class SuggestionSaveVM : SaveVM
@@ -47,6 +47,7 @@ namespace SuggestionBoard.Data.ViewModel
         public int LikeAmount { get; set; }
         public int DislikeAmount { get; set; }
         public Guid CreateBy { get; set; }
+        public string CreateByName { get; set; }
         public DateTime CreateDT { get; set; }
     }
 
