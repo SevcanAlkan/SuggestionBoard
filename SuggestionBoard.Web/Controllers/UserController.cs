@@ -34,6 +34,33 @@ namespace SuggestionBoard.Web.Controllers
             _categoryService = categoryService;
         }
 
+
+        [HttpGet]
+        public async Task<ActionResult<UserPaggingListVM>> Index(string searchString = "", int pageNumber = 1)
+        {
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["PageNumber"] = pageNumber;
+
+            var result = _service.GetList(searchString, pageNumber, 5);
+            result.Pagging.ActionName = "Index";
+            result.Pagging.ControllerName = "User";
+
+            ToolbarVM toolbarVM = new ToolbarVM();
+            toolbarVM.ControllerName = "User";
+            toolbarVM.ActionName = "Index";
+            toolbarVM.ShowSearch = true;
+            toolbarVM.Categories = null;
+            toolbarVM.ShowCategories = false;
+            toolbarVM.ShowSortingOptions = false;
+
+            result.ToolbarData = toolbarVM;
+
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            result.CurrentUserId = user.Id;
+
+            return View(result);
+        }
+
         [HttpGet]
         public async Task<ActionResult<ProfileVM>> Profile(Guid? id = null, string sortOrder = "newest", int pageNumber = 1, Guid? categoryId = null)
         {

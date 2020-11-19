@@ -45,11 +45,11 @@ namespace SuggestionBoard.Data
                 .ForMember(m => m.CreateById, o => o.MapFrom(s => s.CreateBy))
                 .ForMember(m => m.CreateDateTime, o => o.MapFrom(s => s.CreateDT));
 
-            CreateMap<CategorySaveVM, Category>().ReverseMap()
+            CreateMap<CategorySaveVM, Category>()
                 .ForMember(m => m.CreateBy, o => o.Ignore())
                 .ForMember(m => m.CreateDT, o => o.Ignore());
+            CreateMap<Category, CategorySaveVM>();
             CreateMap<CategoryVM, CategorySaveVM>().ReverseMap();
-            CreateMap<Category, CategorySaveVM>().ReverseMap();
 
             CreateMap<User, ProfileVM>();
         }

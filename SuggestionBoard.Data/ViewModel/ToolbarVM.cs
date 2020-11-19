@@ -12,7 +12,8 @@ namespace SuggestionBoard.Data.ViewModel
         public string ActionName { get; set; }
         public List<SelectListVM> Categories { get; set; }
 
-        [DefaultValue(true)]
-        public bool ShowSearch { get; set; }
+        public bool ShowSearch { get; set; } = true;
+        public bool ShowCategories { get; set; } = true;
+        public bool ShowSortingOptions { get; set; } = true;
     }
 }

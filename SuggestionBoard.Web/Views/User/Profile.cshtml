@@ -67,9 +67,9 @@
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
                     <div class="container" style="margin-top: 0.5rem">
-                        @await Html.PartialAsync("../Home/_ListToolbar", Model.ToolbarData)
+                        @await Html.PartialAsync("../Shared/_ListToolbar", Model.ToolbarData)
 
-                        @await Html.PartialAsync("../Home/_SuggestionList", Model.Suggestion.Records)
+                        @await Html.PartialAsync("../Shared/_SuggestionList", Model.Suggestion.Records)
 
                         @await Html.PartialAsync("../Shared/_PaggingButtonGroup", Model.Suggestion.Pagging)
                     </div>

@@ -17,9 +17,9 @@
             </div>
         </div>
 
-        @await Html.PartialAsync("_ListToolbar", Model.ToolbarData)
+        @await Html.PartialAsync("../Shared/_ListToolbar", Model.ToolbarData)
 
-        @await Html.PartialAsync("_SuggestionList", Model.Records)
+        @await Html.PartialAsync("../Shared/_SuggestionList", Model.Records)
 
         @await Html.PartialAsync("../Shared/_PaggingButtonGroup", Model.Pagging)
 

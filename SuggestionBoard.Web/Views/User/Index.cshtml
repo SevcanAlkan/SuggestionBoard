@@ -1,0 +1,62 @@
+﻿@using SuggestionBoard.Data.ViewModel
+@model UserPaggingListVM
+
+@{
+    ViewData["Title"] = "User";
+}
+
+<div class="text-center">
+    <div class="container" style="margin-bottom:1rem">
+
+        @await Html.PartialAsync("../Shared/_ListToolbar", Model.ToolbarData)
+
+        <div class="row">
+            <div class="col-12">
+
+                @if ((Model == null || !Model.Records.Any()) && ViewData["CurrentFilter"] == null || Model.Records.Count == 0)
+                {
+                    <div class="jumbotron jumbotron-fluid">
+                        <div class="container">
+                            <h1 class="display-4">There is no any User 😢</h1>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <table class="table">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Picture</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Suggetion Count</th>
+                                <th scope="col">Comment Count</th>
+                                <th scope="col">Reaction Count</th>
+                                <th scope="col">Total Point</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Records)
+                            {
+                                <tr>
+                                    <th scope="row">
+                                        <img src="@(item.PictureUrl == null || item.PictureUrl == "" ? "/StaticFiles/defaultUserPicture.jpg": item.PictureUrl)"
+                                             height="100" width="100" class="img-thumbnail rounded">
+                                    </th>
+                                    <td><a asp-action="Profile" asp-controller="User" asp-route-id="@item.Id">@item.Name</a></td>
+                                    <td>@item.SuggetionCount</td>
+                                    <td>@item.CommentCount</td>
+                                    <td>@item.ReactionCount</td>
+                                    <td>@item.TotalReactionPoint</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+
+        @await Html.PartialAsync("../Shared/_PaggingButtonGroup", Model.Pagging)
+
+    </div>
+
+</div>
