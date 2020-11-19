@@ -1,0 +1,87 @@
+﻿@using SuggestionBoard.Data.ViewModel
+@model CategoryPaggingListVM
+
+@{
+    ViewData["Title"] = "Categories";
+}
+
+<div class="text-center">
+    <div class="container" style="margin-bottom:1rem">
+
+        <div class="row">
+            <div class="col">
+                <a id="btn-new" class="btn btn-success btn-lg btn-block" style="margin-bottom:1rem"
+                   asp-controller="Category" asp-action="Detail">Create New Category</a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+
+                @if ((Model == null || !Model.Records.Any()) && ViewData["CurrentFilter"] == null)
+                {
+                    <div class="jumbotron jumbotron-fluid">
+                        <div class="container">
+                            <h1 class="display-4">There is no any category 😢</h1>
+                            <p class="lead">You can add a category!</p>
+                        </div>
+                    </div>
+                }
+                else if (Model.Records.Count == 0)
+                {
+                    <div class="jumbotron jumbotron-fluid">
+                        <div class="container">
+                            <h1 class="display-4">There is no any category 😢</h1>
+                            <p class="lead">Try to search different keywords or clean filters</p>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <table class="table">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col">Created By</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Options</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Records)
+                            {
+                                <tr>
+                                    <th scope="row">@item.Name</th>
+                                    <td>@item.CreateByName</td>
+                                    <td>@item.CreateDateTime.ToShortDateString()</td>
+                                    <td>
+                                        @{
+                                            bool canEdit = Model.CurrentUserId != Guid.Empty && Model.CurrentUserId == item.CreateById;
+                                        }
+
+                                        @if (canEdit)
+                                        {
+                                            <a class="btn btn-sm btn-primary" type="button" asp-action="Detail"
+                                               asp-route-id="@item.Id">Edit</a>
+                                            <a class="btn btn-sm btn-danger" type="button" asp-action="Delete"
+                                               asp-route-id="@item.Id">Delete</a>
+                                        }
+                                        else
+                                        {
+                                            <a class="btn btn-sm btn-light" type="button" asp-action="Detail"
+                                               asp-route-id="@item.Id">View</a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+
+        @await Html.PartialAsync("../Shared/_PaggingButtonGroup", Model.Pagging)
+
+    </div>
+
+</div>

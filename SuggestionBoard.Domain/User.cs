@@ -10,13 +10,9 @@ namespace SuggestionBoard.Domain
 {
     public class User : IdentityUser<Guid>
     {
-        [Range(0, int.MaxValue), DefaultValue(0)]
-        public int SuggestionAmount { get; set; }
-        [Range(0, int.MaxValue), DefaultValue(0)]
-        public int ReactionAmount { get; set; }
+        public string PictureUrl { get; set; }
 
         //Foreign Keys...
-
 
         public User()
         {

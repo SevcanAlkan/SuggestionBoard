@@ -10,7 +10,7 @@ using SuggestionBoard.Data;
 namespace SuggestionBoard.Data.Migrations
 {
     [DbContext(typeof(SuggestionBoardDbContext))]
-    [Migration("20201010135451_Initial")]
+    [Migration("20201119011045_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -122,6 +122,36 @@ namespace SuggestionBoard.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("SuggestionBoard.Domain.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CreateBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreateDT")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("UpdateBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdateDT")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
+                });
+
             modelBuilder.Entity("SuggestionBoard.Domain.Role", b =>
                 {
                     b.Property<Guid>("Id")
@@ -154,6 +184,9 @@ namespace SuggestionBoard.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CategoryId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("CreateBy")
@@ -311,14 +344,11 @@ namespace SuggestionBoard.Data.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<int>("ReactionAmount")
-                        .HasColumnType("int");
+                    b.Property<string>("PictureUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("SuggestionAmount")
-                        .HasColumnType("int");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
@@ -343,6 +373,8 @@ namespace SuggestionBoard.Data.Migrations
             modelBuilder.Entity("SuggestionBoard.Domain.Suggestion", b =>
                 {
                     b.HasBaseType("SuggestionBoard.Domain.SuggestionBase");
+
+                    b.HasIndex("CategoryId");
 
                     b.HasDiscriminator().HasValue("Suggestion");
                 });
@@ -412,6 +444,15 @@ namespace SuggestionBoard.Data.Migrations
                     b.HasOne("SuggestionBoard.Domain.Suggestion", "Suggestion")
                         .WithMany("SuggestionReactions")
                         .HasForeignKey("SuggestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SuggestionBoard.Domain.Suggestion", b =>
+                {
+                    b.HasOne("SuggestionBoard.Domain.Category", "Category")
+                        .WithMany("Suggestions")
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

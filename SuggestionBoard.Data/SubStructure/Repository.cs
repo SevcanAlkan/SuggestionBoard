@@ -82,11 +82,11 @@ namespace SuggestionBoard.Data.SubStructure
                 _logger.LogError("Repository.Update", ex);
             }
         }
-        public IQueryable<T> Query(bool isDeleted = false)
+        public IQueryable<T> Query(bool showIsDeleted = false)
         {
             try
             {
-                return con.Set<T>().Where(x => !x.IsDeleted || x.IsDeleted == isDeleted).AsQueryable();
+                return con.Set<T>().Where(x => !x.IsDeleted || showIsDeleted).AsQueryable();
             }
             catch (Exception ex)
             {

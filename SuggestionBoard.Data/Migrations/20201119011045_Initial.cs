@@ -8,6 +8,23 @@ namespace SuggestionBoard.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    CreateDT = table.Column<DateTime>(nullable: false),
+                    UpdateDT = table.Column<DateTime>(nullable: true),
+                    CreateBy = table.Column<Guid>(nullable: false),
+                    UpdateBy = table.Column<Guid>(nullable: true),
+                    Name = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Roles",
                 columns: table => new
                 {
@@ -19,28 +36,6 @@ namespace SuggestionBoard.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Roles", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Suggestions",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false),
-                    CreateDT = table.Column<DateTime>(nullable: false),
-                    UpdateDT = table.Column<DateTime>(nullable: true),
-                    CreateBy = table.Column<Guid>(nullable: false),
-                    UpdateBy = table.Column<Guid>(nullable: true),
-                    Title = table.Column<string>(nullable: false),
-                    Description = table.Column<string>(nullable: false),
-                    Status = table.Column<short>(nullable: false),
-                    LikeAmount = table.Column<int>(nullable: false),
-                    DislikeAmount = table.Column<int>(nullable: false),
-                    Discriminator = table.Column<string>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Suggestions", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -62,12 +57,40 @@ namespace SuggestionBoard.Data.Migrations
                     LockoutEnd = table.Column<DateTimeOffset>(nullable: true),
                     LockoutEnabled = table.Column<bool>(nullable: false),
                     AccessFailedCount = table.Column<int>(nullable: false),
-                    SuggestionAmount = table.Column<int>(nullable: false),
-                    ReactionAmount = table.Column<int>(nullable: false)
+                    PictureUrl = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Suggestions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    CreateDT = table.Column<DateTime>(nullable: false),
+                    UpdateDT = table.Column<DateTime>(nullable: true),
+                    CreateBy = table.Column<Guid>(nullable: false),
+                    UpdateBy = table.Column<Guid>(nullable: true),
+                    Title = table.Column<string>(nullable: false),
+                    Description = table.Column<string>(nullable: false),
+                    Status = table.Column<short>(nullable: false),
+                    LikeAmount = table.Column<int>(nullable: false),
+                    DislikeAmount = table.Column<int>(nullable: false),
+                    CategoryId = table.Column<Guid>(nullable: false),
+                    Discriminator = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Suggestions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Suggestions_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -87,54 +110,6 @@ namespace SuggestionBoard.Data.Migrations
                         name: "FK_AspNetRoleClaims_Roles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "Roles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SuggestionComments",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false),
-                    CreateDT = table.Column<DateTime>(nullable: false),
-                    UpdateDT = table.Column<DateTime>(nullable: true),
-                    CreateBy = table.Column<Guid>(nullable: false),
-                    UpdateBy = table.Column<Guid>(nullable: true),
-                    SuggestionId = table.Column<Guid>(nullable: false),
-                    Text = table.Column<string>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SuggestionComments", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_SuggestionComments_Suggestions_SuggestionId",
-                        column: x => x.SuggestionId,
-                        principalTable: "Suggestions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SuggestionReactions",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(nullable: false),
-                    IsDeleted = table.Column<bool>(nullable: false),
-                    CreateDT = table.Column<DateTime>(nullable: false),
-                    UpdateDT = table.Column<DateTime>(nullable: true),
-                    CreateBy = table.Column<Guid>(nullable: false),
-                    UpdateBy = table.Column<Guid>(nullable: true),
-                    SuggestionId = table.Column<Guid>(nullable: false),
-                    Reaction = table.Column<short>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SuggestionReactions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_SuggestionReactions_Suggestions_SuggestionId",
-                        column: x => x.SuggestionId,
-                        principalTable: "Suggestions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -224,6 +199,54 @@ namespace SuggestionBoard.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "SuggestionComments",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    CreateDT = table.Column<DateTime>(nullable: false),
+                    UpdateDT = table.Column<DateTime>(nullable: true),
+                    CreateBy = table.Column<Guid>(nullable: false),
+                    UpdateBy = table.Column<Guid>(nullable: true),
+                    SuggestionId = table.Column<Guid>(nullable: false),
+                    Text = table.Column<string>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SuggestionComments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SuggestionComments_Suggestions_SuggestionId",
+                        column: x => x.SuggestionId,
+                        principalTable: "Suggestions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SuggestionReactions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    IsDeleted = table.Column<bool>(nullable: false),
+                    CreateDT = table.Column<DateTime>(nullable: false),
+                    UpdateDT = table.Column<DateTime>(nullable: true),
+                    CreateBy = table.Column<Guid>(nullable: false),
+                    UpdateBy = table.Column<Guid>(nullable: true),
+                    SuggestionId = table.Column<Guid>(nullable: false),
+                    Reaction = table.Column<short>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SuggestionReactions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SuggestionReactions_Suggestions_SuggestionId",
+                        column: x => x.SuggestionId,
+                        principalTable: "Suggestions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -260,6 +283,11 @@ namespace SuggestionBoard.Data.Migrations
                 name: "IX_SuggestionReactions_SuggestionId",
                 table: "SuggestionReactions",
                 column: "SuggestionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Suggestions_CategoryId",
+                table: "Suggestions",
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",
@@ -305,6 +333,9 @@ namespace SuggestionBoard.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Suggestions");
+
+            migrationBuilder.DropTable(
+                name: "Categories");
         }
     }
 }

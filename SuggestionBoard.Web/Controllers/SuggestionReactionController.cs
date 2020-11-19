@@ -35,7 +35,7 @@ namespace SuggestionBoard.Web.Controllers
         [HttpGet]
         public async Task<ActionResult> Send(Guid suggestionId, UserReaction reaction)
         {
-            var user = await _userManager.FindByEmailAsync(User.Identity.Name);
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
             if (user == null)
                 return RedirectToAction("Register", "Authentication");
 

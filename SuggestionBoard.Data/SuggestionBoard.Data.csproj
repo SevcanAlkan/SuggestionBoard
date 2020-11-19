@@ -26,4 +26,8 @@
     <ProjectReference Include="..\SuggestionBoard.Domain\SuggestionBoard.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

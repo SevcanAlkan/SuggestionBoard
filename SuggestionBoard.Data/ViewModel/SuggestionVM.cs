@@ -19,6 +19,9 @@ namespace SuggestionBoard.Data.ViewModel
         public int DislikeAmount { get; set; }
         public int TotalReaction { get; set; }
 
+        public Guid CategoryId { get; set; }
+        public string CategoryName { get; set; }
+
         public Guid CreateById { get; set; }
         public string CreateByName { get; set; }
 
@@ -29,7 +32,9 @@ namespace SuggestionBoard.Data.ViewModel
     {
         public List<SuggestionVM> Records { get; set; }
 
-        public bool IsNextPageExist { get; set; }
+        public PaggingVM Pagging { get; set; }
+
+        public ToolbarVM ToolbarData { get; set; }
     }
 
     public sealed class SuggestionSaveVM : SaveVM
@@ -43,10 +48,18 @@ namespace SuggestionBoard.Data.ViewModel
         [StringLength(maximumLength: 2000, MinimumLength = 5, ErrorMessage = "Description cannot be longer than 2000 characters and less than 5 characters")]
         public string Description { get; set; }
         [Required, DefaultValue(SuggestionStatus.Created)]
-        public SuggestionStatus Status { get; set; }        
+        public SuggestionStatus Status { get; set; }
         public int LikeAmount { get; set; }
         public int DislikeAmount { get; set; }
+
+        [DataType(DataType.Text)]
+        [Required(ErrorMessage = "Category is required")]
+        [Display(Name = "Category")]
+        public Guid CategoryId { get; set; }
+        public string CategoryName { get; set; }
+
         public Guid CreateBy { get; set; }
+        public string CreateByName { get; set; }
         public DateTime CreateDT { get; set; }
     }
 
@@ -65,6 +78,8 @@ namespace SuggestionBoard.Data.ViewModel
 
         public List<SuggestionCommentVM> SuggestionComments { get; set; }
         public List<SuggestionReactionVM> SuggestionReactions { get; set; }
+
+        public List<SelectListVM> Categories { get; set; }
 
         public bool CanEdit { get; set; }
 

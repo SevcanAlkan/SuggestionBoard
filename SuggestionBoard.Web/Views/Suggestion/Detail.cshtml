@@ -1,17 +1,31 @@
 ﻿@using SuggestionBoard.Data.ViewModel
+@using SuggestionBoard.Core.ViewModel
 @using SuggestionBoard.Core.Enum
 @model SuggestionDetailVM
+
+<style>
+    /* the width of the entire in div of id=product */
+    #categories {
+        width: 100%;
+    }
+        /* any item in the div of id=product with its class having dropdownlist */
+        #categories .dropdownlist {
+            font-size: 18px;
+        }
+        /* any dropdown in product id div */
+        #categories select {
+            color: blue;
+        }
+        /* specifically, any item with id of ddlCategories in the div of id=product */
+        #categories #ddlCategories {
+            color: red;
+        }
+</style>
+
 @{
     bool isNewRecord = Model == null || Model.Id == null || Model.Id == Guid.Empty;
 
-    if (!isNewRecord && Model.CanEdit)
-    {
-        ViewData["Title"] = "Edit Suggestion";
-    }
-    else
-    {
-        ViewData["Title"] = "New Suggestion";
-    }
+    ViewData["Title"] = "Suggestion Detail";
 }
 
 @if (isNewRecord)
@@ -22,7 +36,7 @@ else
 {
     <div class="row">
         <div class="col-8">
-            <h2>@(Model.CanEdit? "Edit": "View") Suggestion <em class="text-muted h5">[@Model.Id.ToString()]</em></h2>
+            <h2>@(Model.CanEdit? "Edit": "View") Suggestion</h2>
         </div>
         <div class="col-4">
             @await Html.PartialAsync("_ReactionButtonGroup", Model.Id)
@@ -31,14 +45,8 @@ else
 
 }
 
-@*<label for="canEdit">CanEdit</label>
-    <input id="canEdit" value="@(Model.CanEdit? "True" : "False")" />
-
-    <label for="isNewRecord">IsNewRecord</label>
-    <input id="isNewRecord" value="@(isNewRecord? "True" : "False")" />*@
-
 @{
-    int dayCount = (int)Math.Round((DateTime.UtcNow - Model.Rec.CreateDT).TotalDays);
+    int dayCount = Model.Rec.CreateDT != DateTime.MinValue ? (int)Math.Round((DateTime.UtcNow - Model.Rec.CreateDT).TotalDays) : 0;
 }
 
 <ul class="list-inline">
@@ -67,6 +75,24 @@ else
             @Html.EditorFor(model => model.Rec.Description, new { htmlAttributes = new { @class = "form-control" } })
             @Html.ValidationMessageFor(model => model.Rec.Description, "", new { @class = "text-danger" })
         </div>
+        <div class="form-group">
+            @{
+                var categoryList = new SelectList((Model.Categories != null ?
+                Model.Categories : new List<SelectListVM>()), "Id", "Text");
+            }
+            <div class="row">
+                <div class="col-12">
+                    @Html.LabelFor(model => model.Rec.CategoryId)
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    @Html.DropDownListFor(model => model.Rec.CategoryId, categoryList,
+                        new { htmlAttributes = new { @class = "form-control dropdown" } })
+                    @Html.ValidationMessageFor(model => model.Rec.CategoryId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+        </div>
 
         @Html.Hidden("Rec.Id", Model.Id)
 
@@ -83,6 +109,12 @@ else
         @Html.LabelFor(model => model.Rec.Description)
         @Html.EditorFor(model => model.Rec.Description, new { htmlAttributes = new { @class = "form-control", @readonly = "readonly" } })
     </div>
+
+    <div class="row col-12">
+        <label for="senderLink" style="margin-right:0.5rem">Sender:</label>
+        <a id="senderLink" asp-action="Profile" asp-controller="User" asp-route-id="@Model.Rec.CreateBy">@Model.Rec.CreateByName</a>
+    </div>
+
 }
 
 <br />
@@ -100,48 +132,45 @@ else
 
 @if (!isNewRecord)
 {
-    @if (!isNewRecord)
-    {
-        <div class="row">
-            <div class="col-8">
-                <p class="h5">Comments</p>
+    <div class="row">
+        <div class="col-8">
+            <p class="h5">Comments</p>
 
-                <div class="row">
-                    @await Html.PartialAsync("_CommentList", Model.SuggestionComments)
-                </div>
+            <div class="row">
+                @await Html.PartialAsync("_CommentList", Model.SuggestionComments)
+            </div>
 
-                <div class="row">
+            <div class="row">
 
-                    @{
-                        SuggestionCommentSaveVM commentModel;
+                @{
+                    SuggestionCommentSaveVM commentModel;
 
-                        if (ViewData["CommentFormData"] != null && ViewData["CommentFormData"] is SuggestionCommentSaveVM)
-                        {
-                            commentModel = (SuggestionCommentSaveVM)ViewData["CommentFormData"];
-                        }
-                        else
-                        {
-                            commentModel = new SuggestionCommentSaveVM();
-                        }
-
-                        commentModel.SuggestionId = Model.Id;
+                    if (ViewData["CommentFormData"] != null && ViewData["CommentFormData"] is SuggestionCommentSaveVM)
+                    {
+                        commentModel = (SuggestionCommentSaveVM)ViewData["CommentFormData"];
+                    }
+                    else
+                    {
+                        commentModel = new SuggestionCommentSaveVM();
                     }
 
-                    @await Html.PartialAsync("_CommentForm", commentModel)
+                    commentModel.SuggestionId = Model.Id;
+                }
 
-                </div>
-
-            </div>
-            <div class="col-4">
-                <p class="h5">Likes & Dislikes</p>
-
-                <div class="row">
-                    @await Html.PartialAsync("_ReactionList", Model.SuggestionReactions)
-                </div>
+                @await Html.PartialAsync("_CommentForm", commentModel)
 
             </div>
+
         </div>
-    }
+        <div class="col-4">
+            <p class="h5">Likes & Dislikes</p>
+
+            <div class="row">
+                @await Html.PartialAsync("_ReactionList", Model.SuggestionReactions)
+            </div>
+
+        </div>
+    </div>
 }
 
 
