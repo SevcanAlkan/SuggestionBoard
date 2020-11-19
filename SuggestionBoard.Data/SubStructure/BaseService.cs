@@ -23,7 +23,8 @@ namespace SuggestionBoard.Data.SubStructure
         Task<bool> AnyAsync(Expression<Func<D, bool>> expr);
         Task<L> GetByIdAsync(Guid id);
         Task<IEnumerable<L>> GetAllAsync(bool asNoTracking = true);
-        Task<IList<L>> GetAllAsync(Expression<Func<D, bool>> expr, bool asNoTracking = true);
+        Task<List<L>> GetAllAsync(Expression<Func<D, bool>> expr, bool asNoTracking = true);
+        IQueryable<T> GetAllAsync<T>(Expression<Func<D, bool>> expr, Expression<Func<D, T>> selector, bool asNoTracking = true);
         Task<APIResultVM> AddAsync(S model, Guid? userId = null, bool isCommit = true);
         Task<APIResultVM> UpdateAsync(Guid id, S model, Guid? userId = null, bool isCommit = true);
         Task<APIResultVM> DeleteAsync(Guid id, Guid? userId = null, bool shouldBeOwner = false, bool isCommit = true);
@@ -121,7 +122,7 @@ namespace SuggestionBoard.Data.SubStructure
                 return null;
             }
         }
-        public virtual async Task<IList<L>> GetAllAsync(Expression<Func<D, bool>> expr, bool asNoTracking = true)
+        public virtual async Task<List<L>> GetAllAsync(Expression<Func<D, bool>> expr, bool asNoTracking = true)
         {
             try
             {
@@ -138,6 +139,26 @@ namespace SuggestionBoard.Data.SubStructure
                 return null;
             }
         }
+        public virtual IQueryable<T> GetAllAsync<T>(Expression<Func<D, bool>> expr, Expression<Func<D, T>> selector, bool asNoTracking = true)
+        {
+            try
+            {
+                var query = Repository.Query().Where(expr);
+
+                if (asNoTracking)
+                    query = query.AsNoTracking();
+
+                var results = query.Select(selector);
+
+                return results;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("BaseService.GetAllAsync", e);
+                return null;
+            }
+        }
+
 
         public virtual async Task<APIResultVM> AddAsync(S model, Guid? userId = null, bool isCommit = true)
         {

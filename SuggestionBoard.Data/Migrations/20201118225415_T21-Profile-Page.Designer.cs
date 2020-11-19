@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SuggestionBoard.Data;
 
 namespace SuggestionBoard.Data.Migrations
 {
     [DbContext(typeof(SuggestionBoardDbContext))]
-    partial class SuggestionBoardDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201118225415_T21-Profile-Page")]
+    partial class T21ProfilePage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

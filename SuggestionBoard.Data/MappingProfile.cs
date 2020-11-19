@@ -12,7 +12,10 @@ namespace SuggestionBoard.Data
         public MappingProfile()
         {
             CreateMap<Suggestion, SuggestionVM>()
-                .ForMember(m => m.CreateById, o => o.MapFrom(s => s.CreateBy));
+                .ForMember(m => m.CreateById, o => o.MapFrom(s => s.CreateBy))
+                .ForMember(m => m.CreateDateTime, o => o.MapFrom(s => s.CreateDT))
+                .ForMember(m => m.TotalReaction, o => o.MapFrom(s => s.DislikeAmount + s.LikeAmount + ((s.SuggestionComments != null ? s.SuggestionComments.Count : 0) * 2)))
+                .ForMember(m => m.CommentCount, o => o.MapFrom(s => s.SuggestionComments != null ? s.SuggestionComments.Count : 0));
 
             CreateMap<SuggestionVM, Suggestion>()
                 .ForMember(m => m.CreateBy, o => o.Ignore())
@@ -36,6 +39,8 @@ namespace SuggestionBoard.Data
             CreateMap<SuggestionReaction, SuggestionReactionVM>().ReverseMap();
             CreateMap<SuggestionReactionVM, SuggestionReactionSaveVM>().ReverseMap();
             CreateMap<SuggestionReaction, SuggestionReactionSaveVM>().ReverseMap();
+
+            CreateMap<User, ProfileVM>();
         }
     }
 }

@@ -11,6 +11,7 @@ using SuggestionBoard.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -38,59 +39,17 @@ namespace SuggestionBoard.Data.Service
 
         public SuggestionPaggingListVM GetList(bool showIsDeleted = false, string searchText = "", string sortOrder = "", int pageNumber = 1, int pageItemCount = 10)
         {
-            var query = Repository.Query(showIsDeleted).AsNoTracking();
-
             if (!searchText.IsNullOrEmpty())
-            {
                 searchText = searchText.Trim().ToUpper();
-                query = query.Where(a => a.Title.ToUpper().Contains(searchText)
-                    || a.Description.ToUpper().Contains(searchText)).AsQueryable();
-            }
-
-            var selectedQuery = query.Include(s => s.SuggestionComments).Select(s => new SuggestionVM()
-            {
-                Id = s.Id,
-                CreateDateTime = s.CreateDT,
-                Description = s.Description,
-                Status = s.Status,
-                LikeAmount = s.LikeAmount,
-                DislikeAmount = s.DislikeAmount,
-                Title = s.Title,
-                TotalReaction = s.DislikeAmount + s.LikeAmount + ((s.SuggestionComments != null ? s.SuggestionComments.Count : 0) * 2),
-                CommentCount = s.SuggestionComments != null ? s.SuggestionComments.Count : 0,
-                CreateById = s.CreateBy,
-                CreateByName = ""
-
-            });
 
             SuggestionPaggingListVM result = new SuggestionPaggingListVM();
 
-            switch (sortOrder)
-            {
-                case "newest":
-                    selectedQuery = selectedQuery.OrderBy(o => o.CreateDateTime);
-                    break;
-                case "comment":
-                    selectedQuery = selectedQuery.OrderByDescending(o => o.CommentCount);
-                    break;
-                case "like":
-                    selectedQuery = selectedQuery.OrderByDescending(o => o.LikeAmount);
-                    break;
-                case "reaction":
-                    selectedQuery = selectedQuery.OrderByDescending(o => o.TotalReaction);
-                    break;
-                default:
-                    selectedQuery = selectedQuery.OrderByDescending(o => o.CreateDateTime);
-                    break;
-            }
-
-            if (pageNumber > 1)
-                selectedQuery = selectedQuery.Skip((pageNumber - 1) * pageItemCount);
-
-            result.Records = selectedQuery.Take(pageItemCount).ToList();
+            result.Records = GetAllAsync(a => a.Title.ToUpper().Contains(searchText)
+                    || a.Description.ToUpper().Contains(searchText),
+                    true, sortOrder, pageNumber, pageItemCount).Result;
 
             #region Next Page Check
-            query = Repository.Query(showIsDeleted).AsNoTracking().AsQueryable();
+            var query = Repository.Query(showIsDeleted).AsNoTracking().AsQueryable();
 
             if (!searchText.IsNullOrEmpty())
             {
@@ -98,7 +57,8 @@ namespace SuggestionBoard.Data.Service
                     || a.Description.ToUpper().Contains(searchText)).AsQueryable();
             }
 
-            result.IsNextPageExist = query.Skip((pageNumber * pageItemCount)).Take(1).Count() == 1;
+            result.Pagging = new PaggingVM();
+            result.Pagging.IsNextPageExist = query.Skip((pageNumber * pageItemCount)).Take(1).Count() == 1;
             #endregion
 
             var users = _con.Set<User>().AsNoTracking().Select(s => new { s.Id, s.UserName }).ToList();
@@ -123,10 +83,11 @@ namespace SuggestionBoard.Data.Service
 
             if (record != null)
             {
+                var users = _con.Set<User>().AsNoTracking().Select(s => new { s.Id, s.UserName }).ToList();
+
                 vm.Id = id.Value;
                 vm.Rec = _mapper.Map<SuggestionSaveVM>(record);
-
-                var users = _con.Set<User>().AsNoTracking().Select(s => new { s.Id, s.UserName }).ToList();
+                vm.Rec.CreateByName = users.Any(a => a.Id == record.CreateBy) ? users.Where(a => a.Id == record.CreateBy).Select(s => s.UserName).FirstOrDefault() : "";
 
                 //Load Comments
                 vm.SuggestionComments = await _mapper.ProjectTo<SuggestionCommentVM>(_con.Set<SuggestionComment>().AsNoTracking().Where(a => a.SuggestionId == id.Value)
@@ -171,6 +132,49 @@ namespace SuggestionBoard.Data.Service
             }
         }
 
+        public async Task<List<SuggestionVM>> GetAllAsync(Expression<Func<Suggestion, bool>> expr = null, bool asNoTracking = true, string sortOrder = "", int pageNumber = 1, int pageItemCount = 10)
+        {
+            try
+            {
+                var query = Repository.Query();
+
+                if(expr != null)
+                    query = query.Where(expr);
+
+                if (asNoTracking)
+                    query = query.AsNoTracking();
+
+                switch (sortOrder)
+                {
+                    case "newest":
+                        query = query.OrderByDescending(o => o.CreateDT);
+                        break;
+                    case "comment":
+                        query = query.Include(i => i.SuggestionComments).OrderByDescending(o => o.SuggestionComments != null ? o.SuggestionComments.Count : 0);
+                        break;
+                    case "like":
+                        query = query.OrderByDescending(o => o.LikeAmount);
+                        break;
+                    case "reaction":
+                        query = query.Include(i => i.SuggestionComments).OrderByDescending(o => o.LikeAmount + o.DislikeAmount + (o.SuggestionComments != null ? o.SuggestionComments.Count : 0));
+                        break;
+                    default:
+                        query = query.OrderBy(o => o.CreateDT);
+                        break;
+                }
+
+                if (pageNumber > 1)
+                    query = query.Skip((pageNumber - 1) * pageItemCount);
+
+                return await _mapper.ProjectTo<SuggestionVM>(query.Take(pageItemCount)).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError("BaseService.GetAllAsync", e);
+                return null;
+            }
+        }
+
         #endregion
     }
 
@@ -179,5 +183,6 @@ namespace SuggestionBoard.Data.Service
         SuggestionPaggingListVM GetList(bool showIsDeleted = false, string searchText = "", string sortOrder = "", int pageNumber = 1, int pageItemCount = 10);
         Task<SuggestionDetailVM> GetWithAdditionalData(Guid? id);
         Task UpdateReactionCount(Guid? id, UserReaction reaction);
+        Task<List<SuggestionVM>> GetAllAsync(Expression<Func<Suggestion, bool>> expr = null, bool asNoTracking = true, string sortOrder = "", int pageNumber = 1, int pageItemCount = 10);
     }
 }
