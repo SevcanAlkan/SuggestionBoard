@@ -39,7 +39,7 @@
                             {
                                 <tr>
                                     <th scope="row">
-                                        <img src="@(item.PictureUrl == null || item.PictureUrl == "" ? "/StaticFiles/defaultUserPicture.jpg": item.PictureUrl)"
+                                        <img src="@(item.PictureUrl == null || item.PictureUrl == "" ? "defaultUserPicture.jpg": item.PictureUrl)"
                                              height="100" width="100" class="img-thumbnail rounded">
                                     </th>
                                     <td><a asp-action="Profile" asp-controller="User" asp-route-id="@item.Id">@item.Name</a></td>

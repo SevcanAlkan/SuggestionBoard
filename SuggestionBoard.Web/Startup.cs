@@ -121,9 +121,9 @@ namespace SuggestionBoard.Web
             app.UseHttpsRedirection();
             app.UseStaticFiles(new StaticFileOptions
             {
-                FileProvider = new PhysicalFileProvider(
-                Path.Combine(env.ContentRootPath, "StaticFiles")),
-                RequestPath = "/StaticFiles",
+                //FileProvider = new PhysicalFileProvider(
+                //Path.Combine(env.ContentRootPath, "StaticFiles")),
+                //RequestPath = "/StaticFiles",
                 OnPrepareResponse = ctx =>
                 {
                     ctx.Context.Response.Headers.Append("Cache-Control", $"public, max-age={600}");

@@ -10,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="StaticFiles\defaultUserPicture.jpg" />
+    <None Include="wwwroot\defaultUserPicture.jpg" />
   </ItemGroup>
 
   <ItemGroup>
