@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<layerModel xmlns:dm0="http://schemas.microsoft.com/VisualStudio/2008/DslTools/Core" xmlns:dm1="http://schemas.microsoft.com/dsltools/SimpleShapesModel" dslVersion="1.0.0.0" Id="e8ca08ec-c413-4046-94f1-13255a71719f" xmlns="http://schemas.microsoft.com/VisualStudio/TeamArchitect/LayerDesigner">
+  <layers>
+    <layer Id="1571b7da-e531-4fc1-9390-7f161ea455e1" name="SuggestionBoard.Web">
+      <dependencyToLayers>
+        <dependencyFromLayerToLayer Id="38a9d2bd-13b8-44dd-8d8f-d542491cd8e9" direction="Forward">
+          <layerMoniker Id="66bd4486-db66-43c0-a615-bf6fb744dd2e" />
+        </dependencyFromLayerToLayer>
+        <dependencyFromLayerToLayer Id="aaf471d5-6404-468a-a539-6b3741480b4e" direction="Forward">
+          <layerMoniker Id="e5b9a7e2-40c9-4d78-9963-b260b68bf221" />
+        </dependencyFromLayerToLayer>
+        <dependencyFromLayerToLayer Id="0458e9c1-bb59-4248-9aba-a3935679a2ce" direction="Forward">
+          <layerMoniker Id="6e2331e3-9c54-46a0-8f31-af893f98d3dd" />
+        </dependencyFromLayerToLayer>
+      </dependencyToLayers>
+      <references>
+        <reference Id="fff72e26-0730-4547-8621-41ebac9176f1" name="SuggestionBoard.Web">
+          <ArtifactNode Label="SuggestionBoard.Web" Category="CodeSchema_Project" Id="(Assembly=../SuggestionBoard.Web/SuggestionBoard.Web.csproj)">
+            <Category Ref="File" />
+          </ArtifactNode>
+          <ExpandedNode Id="(Assembly=SuggestionBoard.Web)" Label="SuggestionBoard.Web.dll" Category="CodeSchema_Assembly">
+            <Category Ref="FileSystem.Category.FileOfType.dll" />
+            <LinkCategory Ref="Produces" />
+            <LinkCategory Ref="Represents" />
+          </ExpandedNode>
+        </reference>
+      </references>
+    </layer>
+    <layer Id="66bd4486-db66-43c0-a615-bf6fb744dd2e" name="SuggestionBoard.Core">
+      <references>
+        <reference Id="4a84e42c-dfa3-475c-b5c2-fb69ab76b24d" name="SuggestionBoard.Core">
+          <ArtifactNode Label="SuggestionBoard.Core" Category="CodeSchema_Project" Id="(Assembly=../SuggestionBoard.Core/SuggestionBoard.Core.csproj)">
+            <Category Ref="File" />
+          </ArtifactNode>
+          <ExpandedNode Id="(Assembly=SuggestionBoard.Core)" Label="SuggestionBoard.Core.dll" Category="CodeSchema_Assembly">
+            <Category Ref="FileSystem.Category.FileOfType.dll" />
+            <LinkCategory Ref="Produces" />
+            <LinkCategory Ref="Represents" />
+          </ExpandedNode>
+        </reference>
+      </references>
+    </layer>
+    <layer Id="e5b9a7e2-40c9-4d78-9963-b260b68bf221" name="SuggestionBoard.Data">
+      <dependencyToLayers>
+        <dependencyFromLayerToLayer Id="9657782b-5ea3-40af-9b69-15a292275191" direction="Forward">
+          <layerMoniker Id="6e2331e3-9c54-46a0-8f31-af893f98d3dd" />
+        </dependencyFromLayerToLayer>
+        <dependencyFromLayerToLayer Id="9577f65d-e416-4237-82d6-5d1c79c5f1dd" direction="Forward">
+          <layerMoniker Id="66bd4486-db66-43c0-a615-bf6fb744dd2e" />
+        </dependencyFromLayerToLayer>
+      </dependencyToLayers>
+      <references>
+        <reference Id="b78e69fd-cdce-4c6c-8814-19110cc6b9aa" name="SuggestionBoard.Data">
+          <ArtifactNode Label="SuggestionBoard.Data" Category="CodeSchema_Project" Id="(Assembly=../SuggestionBoard.Data/SuggestionBoard.Data.csproj)">
+            <Category Ref="File" />
+          </ArtifactNode>
+          <ExpandedNode Id="(Assembly=SuggestionBoard.Data)" Label="SuggestionBoard.Data.dll" Category="CodeSchema_Assembly">
+            <Category Ref="FileSystem.Category.FileOfType.dll" />
+            <LinkCategory Ref="Produces" />
+            <LinkCategory Ref="Represents" />
+          </ExpandedNode>
+        </reference>
+      </references>
+    </layer>
+    <layer Id="6e2331e3-9c54-46a0-8f31-af893f98d3dd" name="SuggestionBoard.Domain">
+      <dependencyToLayers>
+        <dependencyFromLayerToLayer Id="50c92497-ce9d-4a55-b6f3-f27a0ff6412c" direction="Forward">
+          <layerMoniker Id="66bd4486-db66-43c0-a615-bf6fb744dd2e" />
+        </dependencyFromLayerToLayer>
+      </dependencyToLayers>
+      <references>
+        <reference Id="8604f8c1-f512-440a-81cf-1bcff127e5db" name="SuggestionBoard.Domain">
+          <ArtifactNode Label="SuggestionBoard.Domain" Category="CodeSchema_Project" Id="(Assembly=../SuggestionBoard.Domain/SuggestionBoard.Domain.csproj)">
+            <Category Ref="File" />
+          </ArtifactNode>
+          <ExpandedNode Id="(Assembly=SuggestionBoard.Domain)" Label="SuggestionBoard.Domain.dll" Category="CodeSchema_Assembly">
+            <Category Ref="FileSystem.Category.FileOfType.dll" />
+            <LinkCategory Ref="Produces" />
+            <LinkCategory Ref="Represents" />
+          </ExpandedNode>
+        </reference>
+      </references>
+    </layer>
+    <layer Id="ab49b83a-1a8d-4bab-a62c-3e48a495cdb9" name="SuggestionBoard.Test">
+      <references>
+        <reference Id="ed5f1da7-9975-4843-ac47-f6448f4818cd" name="SuggestionBoard.Test">
+          <ArtifactNode Label="SuggestionBoard.Test" Category="CodeSchema_Project" Id="(Assembly=../SuggestionBoard.Test/SuggestionBoard.Test.csproj)">
+            <Category Ref="File" />
+          </ArtifactNode>
+          <ExpandedNode Id="(Assembly=SuggestionBoard.Test)" Label="SuggestionBoard.Test.dll" Category="CodeSchema_Assembly">
+            <Category Ref="FileSystem.Category.FileOfType.dll" />
+            <LinkCategory Ref="Produces" />
+            <LinkCategory Ref="Represents" />
+          </ExpandedNode>
+        </reference>
+      </references>
+    </layer>
+  </layers>
+</layerModel>
